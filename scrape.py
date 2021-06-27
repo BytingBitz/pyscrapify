@@ -48,7 +48,7 @@ def reviewScrape(url, outputName):
         for authorData in soup.find_all('span', attrs={'itemprop': 'author'})[jump:]:
             positions.append(authorData.find('meta').attrs['content'])
             authorText.append(authorData.text)
-        # Extract status, location, year data.
+        # Extract status, location, and year data.
         for authorEntry in authorText:
             splitData = authorEntry.split(' - ', 2)
             if "(Current Employee)" in splitData[0]: status.append("Current")
