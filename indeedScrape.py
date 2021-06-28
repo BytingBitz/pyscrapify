@@ -75,7 +75,7 @@ def review_scrape(url, output_name, country):
     print("Finished")
 
 # Scrape reviews of a single organisation.
-#review_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
+review_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 
 # Function: multi_review_scrape
 def multi_review_scrape(data=None):
@@ -96,4 +96,4 @@ def multi_review_scrape(data=None):
     print("All organisations finished")
 
 # Scrape reviews of multiple organisations.    
-multi_review_scrape()
+#multi_review_scrape()
