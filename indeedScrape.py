@@ -1,4 +1,4 @@
-# Pull all reviews data from Indeed.com for specific organisation using provided URL, produce CSV.
+# Pull all reviews data from Indeed.com for specific organisations using provided arguments.
 # Creation Date: 27/06/2021
 
 from dotenv import load_dotenv
