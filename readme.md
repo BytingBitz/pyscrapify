@@ -15,7 +15,7 @@ Data collected from Indeed.com for each organisation review:
 * Title: The title of the user review.
 * Review: The text content of the user review.
 
-The built CSV is ordered by the following column headers: Year,Rating,Status,Location,Position,Title,Review. Note: If a new CSV file with the same name as an existing one is created, it will fully replace the existing file.
+The built CSV is ordered by the following column headers: Year,Rating,Status,Location,Position,Title,Review. Note: If a new CSV file with the same name as an existing one is created, it will replace the existing file.
 
 Creation Date: 27/06/2021
 
