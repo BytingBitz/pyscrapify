@@ -52,7 +52,7 @@ Multiple organisation review scrape:
 }
 ```
     
-2: Call multi_review_scrape(None).
+2: Call multi_review_scrape().
 
 ```python
 multi_review_scrape()

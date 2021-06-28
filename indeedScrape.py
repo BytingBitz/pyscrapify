@@ -96,4 +96,4 @@ def multi_review_scrape(data=None):
     print("All organisations finished")
 
 # Scrape reviews of multiple organisations.    
-multi_review_scrape(None)
+multi_review_scrape()
