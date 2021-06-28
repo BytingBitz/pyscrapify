@@ -18,7 +18,7 @@ load_dotenv()
 def grabHTML(url, start, country):
     ''' Returns: Selected Indeed.com page soup. '''
     try:
-        req = lib.Request(url + '?start=' + str(start) + '&fcountry=' + country, headers={'User-Agent': 'Mozilla/5.0'})
+        req = lib.Request(url+'?start='+str(start)+'&fcountry='+country, headers={'User-Agent': 'Mozilla/5.0'})
         webpage = lib.urlopen(req)
         return BeautifulSoup(webpage, 'html.parser')
     except:
