@@ -17,12 +17,14 @@ Data collected from Indeed.com for each organisation review:
 
 The built CSV is ordered by the following column headers: Year,Rating,Status,Location,Position,Title,Review. Note: If a new CSV file with the same name as an existing one is created, it will fully replace the existing file.
 
+Creation Date: 27/06/2021
+
 ***
 Usage:
 --- 
 Single organisation review scrape:
 
-1: Call reviewScrape(url, outputName, country) with correct string arguments. Note: country must be the code Indeed use.
+1: Call reviewScrape(url, outputName, country) with correct string arguments. Note: country must be the code Indeed.com use.
 
 ```python
 reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
@@ -30,7 +32,7 @@ reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 
 Multiple organisation review scrape:
 
-1: Populate the organisations.json with the url, outputName, and country for each organisation being scraped. Note, order matters.
+1: Populate the organisations.json with the url, outputName, and country for each organisation being scraped. Note: order matters, the first entry of urls matches to the first entry of names and countries respectively.
 
 ```json
 { 
@@ -49,7 +51,7 @@ Multiple organisation review scrape:
 }
 ```
     
-2: Call multiReviewScrape()
+2: Call multiReviewScrape() with no provided arguments.
 
 ```python
 multiReviewScrape()
