@@ -24,10 +24,10 @@ Usage:
 --- 
 Single organisation review scrape:
 
-1: Call reviewScrape(url, outputName, country) with correct string arguments. Note: country must be the code Indeed.com use.
+1: Call review_scrape(url, outputName, country) with correct string arguments. Note: country must be the code Indeed.com use.
 
 ```python
-reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
+review_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 ```
 
 Multiple organisation review scrape:
@@ -52,13 +52,12 @@ Multiple organisation review scrape:
 }
 ```
     
-2: Call multiReviewScrape(None).
-
-Note: You may provide your own data dictionary instead of providing None as a function call argument.
+2: Call multi_review_scrape(None).
 
 ```python
-multiReviewScrape()
+multi_review_scrape()
 ```
+Note: You may provide your own data dictionary instead of providing None as a function call argument.
 
 ***
 Acknowledgements:
