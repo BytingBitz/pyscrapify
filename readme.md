@@ -7,13 +7,13 @@ This tool was built simply because I could not find an alternative currently fun
 
 Data collected from Indeed.com for each organisation review:
 
-* Rating: The 1-5 star rating entered.
-* Position: The provided job title the individual worked.
-* Location: The provided location the individual worked.
-* Status: The provided Current or Former employment status.
-* Year: The year in which the user placed the review.
-* Title: The title the user gave their review.
-* Review: The text content of the written review.
+* Rating: The 1-5 star rating.
+* Position: The specified job title.
+* Location: The specified location.
+* Status: The Current or Former employment status.
+* Year: The year in which the review was placed.
+* Title: The title of the user review.
+* Review: The text content of the user review.
 
 The built CSV is ordered by the following column headers: Year,Rating,Status,Location,Position,Title,Review. Note: If a new CSV file with the same name as an existing one is created, it will fully replace the existing file.
 
