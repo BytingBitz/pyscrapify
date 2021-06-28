@@ -1,7 +1,6 @@
 # Pull all reviews data from Indeed.com for specific organisations using provided arguments.
 # Creation Date: 27/06/2021
 
-from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 import urllib.request as lib
 from time import sleep
@@ -9,10 +8,6 @@ from math import ceil
 from json import load
 import csv
 import re
-
-# Desired Data:
-ratings, positions, locations, titles, status, year, reviews = [],[],[],[],[],[],[]
-load_dotenv()
 
 # Function: grab_HTML
 def grab_HTML(url, start, country):
@@ -44,6 +39,7 @@ def review_scrape(url, output_name, country):
     ''' Returns: Review data for Indeed.com organisation as CSV with output name. '''
     global_soup = grab_HTML(url, 0, country)
     reviews_per_page = 20
+    ratings, positions, locations, titles, status, year, reviews = [],[],[],[],[],[],[]
     overview_data = global_soup.find('div', attrs={'data-testid': 'review-count'})
     try: number_reviews = int(overview_data.find('span').find('b').text.replace(',', ''))
     except: number_reviews = int(re.findall(r'\d+',overview_data.find('span').text)[0])
@@ -79,7 +75,7 @@ def review_scrape(url, output_name, country):
     print("Finished")
 
 # Scrape reviews of a single organisation.
-review_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
+#review_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 
 # Function: multi_review_scrape
 def multi_review_scrape(data=None):
@@ -100,4 +96,4 @@ def multi_review_scrape(data=None):
     print("All organisations finished")
 
 # Scrape reviews of multiple organisations.    
-#multi_review_scrape(None)
+multi_review_scrape(None)
