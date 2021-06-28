@@ -32,7 +32,7 @@ reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 
 Multiple organisation review scrape:
 
-1: Populate the organisations.json with the url, outputName, and country for each organisation being scraped. Note: order matters, the first entry of urls matches to the first entry of names and countries respectively.
+1: Populate the organisations.json with the url, outputName, and country for each organisation being scraped. Note: order matters, the first entry of urls matches to the first entry of names and countries.
 
 ```json
 { 
