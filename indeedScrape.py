@@ -78,19 +78,25 @@ def reviewScrape(url, outputName, country):
     print("Finished")
 
 # Scrape reviews of a single organisation.
-reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
+#reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 
 # Function: multiReviewScrape
-def multiReviewScrape():
+def multiReviewScrape(data=None):
     ''' Returns: Review data for multiple Indeed.com organisation as CSV files. '''
-    with open("organisations.json") as content:
-         data = load(content)
-    numberScrapes = len(data["urls"])
+    # Load data from file if none is supplied.
+    if not data:
+        with open("organisations.json") as content:
+            data = load(content)
+    numberScrapes = len(data["configs"])
     print(f"Found {numberScrapes} organisation reviews to scrape ")
-    for org in range(numberScrapes):
-        print(f"Organisation {org + 1} of {numberScrapes}")
-        reviewScrape(data["urls"][org], data["names"][org], data["countries"][org])
+    for i in range(numberScrapes):
+        config = data["configs"][i]
+        url = config.get("url")
+        name = config.get("name")
+        country = config.get("country")
+        print(f"Organisation {i + 1} of {numberScrapes}")
+        reviewScrape(url, name, country)
     print("All organisations finished")
 
 # Scrape reviews of multiple organisations.    
-#multiReviewScrape()
+multiReviewScrape(None)

@@ -32,26 +32,29 @@ reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 
 Multiple organisation review scrape:
 
-1: Populate the organisations.json with the url, outputName, and country for each organisation being scraped. Note: order matters, the first entry of urls matches to the first entry of names and countries.
+1: Populate the organisations.json with the url, outputName, and country for each organisation being scraped.
 
 ```json
-{ 
-    "urls": [
-        "https://au.indeed.com/cmp/Indeed/reviews",
-        "https://au.indeed.com/cmp/Federal-Government/reviews"
-    ],
-    "names" : [
-        "Indeed-Reviews",
-        "Federal-Government-Reviews"
-    ],
-    "countries" : [
-        "AU",
-        "AU"
+{
+    "configs":
+    [
+        {
+            "url": "https://au.indeed.com/cmp/Federal-Government/reviews",
+            "name": "Indeed-Reviews",
+            "country": "AU"
+        },
+        {
+            "url": "https://au.indeed.com/cmp/Indeed/reviews",
+            "name": "Federal-Government-Reviews",
+            "country": "AU"
+        }
     ]
 }
 ```
     
-2: Call multiReviewScrape() with no provided arguments.
+2: Call multiReviewScrape(None).
+
+Note: You may provide your own data dictionary instead of providing None as a function call argument.
 
 ```python
 multiReviewScrape()
