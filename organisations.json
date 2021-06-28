@@ -2,12 +2,12 @@
     "configs":
     [
         {
-            "url": "https://au.indeed.com/cmp/Federal-Government/reviews",
+            "url": "https://au.indeed.com/cmp/Indeed/reviews",
             "name": "Indeed-Reviews",
             "country": "AU"
         },
         {
-            "url": "https://au.indeed.com/cmp/Indeed/reviews",
+            "url": "https://au.indeed.com/cmp/Federal-Government/reviews",
             "name": "Federal-Government-Reviews",
             "country": "AU"
         }
