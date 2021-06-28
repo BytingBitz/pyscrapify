@@ -78,7 +78,7 @@ def reviewScrape(url, outputName, country):
     print("Finished")
 
 # Scrape reviews of a single organisation.
-#reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
+reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
 
 # Function: multiReviewScrape
 def multiReviewScrape():
