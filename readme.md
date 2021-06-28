@@ -66,7 +66,7 @@ Link: https://github.com/tim-sauchuk/Indeed-Company-Review-Scraper
 ***
 Future:
 ---
-Given this project was only developed for some business analysis I have been conducting, future development of this tool currently is unlikely. If bugs are found, will likely fix.
+Given this project was only developed for some business analysis I have been conducting, future development of this tool is unlikely. If bugs are found, they will likely be fixed.
 
 ***
 License:
