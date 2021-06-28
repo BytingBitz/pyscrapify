@@ -1,0 +1,17 @@
+{ 
+
+    "urls": [
+        "https://au.indeed.com/cmp/Indeed/reviews",
+        "https://au.indeed.com/cmp/Federal-Government/reviews"
+    ],
+    
+    "names" : [
+        "Indeed-Reviews",
+        "Federal-Government-Reviews"
+    ],
+
+    "countries" : [
+        "AU",
+        "AU"
+    ]
+}
