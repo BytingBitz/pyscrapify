@@ -3,7 +3,7 @@
 ***
 About:
 ---
-This tool was built simply because I could not find an alternative currently functional tool that worked for pulling Indeed.com organisational reviews. This project also represents my first dive into scraping data from websites and it was a very valuable learning opportunity.
+This tool was built simply because I could not find a currently functional tool for pulling Indeed.com organisational review data. This project also represents my first dive into scraping data from websites and it was a very valuable learning opportunity.
 
 Data collected from Indeed.com for each organisation review:
 
