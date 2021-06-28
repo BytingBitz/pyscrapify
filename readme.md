@@ -1,8 +1,10 @@
-# Indeed.com-Organisation-Review-Scraper 1
+# Indeed.com-Organisation-Review-Scraper
 
 ***
 About:
 ---
+This tool was built simply because I could not find an alternative currently functional tool that worked for pulling Indeed.com organisational reviews. This project also represents my first dive into scraping data from websites and it was a very valuable learning opportunity.
+
 Data collected from Indeed.com for each organisation review:
 
 * Rating: The 1-5 star rating entered.
@@ -21,8 +23,6 @@ Usage:
 Single organisation review scrape:
 
 1: Call reviewScrape(url, outputName, country) with correct string arguments. Note: country must be the code Indeed use.
-
-Example:
 
 ```python
 reviewScrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
