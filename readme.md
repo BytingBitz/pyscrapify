@@ -22,14 +22,16 @@ Creation Date: 27/06/2021
 ***
 # Usage:
 --- 
+
+Constants:
+* organisation: The desired organisation name to appear in the CSV file
+* output_name: Desired output CSV filename (excluding the .csv part)
 ## Single Indeed.com organisation review scrape:
 
-organisation: The desired organisation name to appear in the CSV file
-indeed_url: The correct url for the organisation reviews of a organisation on Indeed.com
-output_name: Desired output CSV filename (excluding the .csv part)
-indeed_country: The desired country/location code Indeed.com use
+* indeed_url: The correct url for the organisation reviews of a organisation on Indeed.com
+* indeed_country: The desired country/location code Indeed.com use
 
-1: Call indeed_scrape(organisation, indeed_url, output_name, country) with correct string arguments.
+### 1: Call indeed_scrape(organisation, indeed_url, output_name, country) with correct string arguments.
 
 ```python
 indeed_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
@@ -37,11 +39,9 @@ indeed_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU"
 
 ## Single Seek.com organisation review scrape:
 
-organisation: The desired organisation name to appear in the CSV file
-seek_url: The correct url for the organisation reviews of a organisation on Seek.com
-output_name: Desired output CSV filename (excluding the .csv part)
+* seek_url: The correct url for the organisation reviews of a organisation on Seek.com
 
-1: Call seek_scrape(organisation, seek_url, output_name)
+### 1: Call seek_scrape(organisation, seek_url, output_name)
 
 ```python
 indeed_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
@@ -49,7 +49,7 @@ indeed_scrape("https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU"
 
 ## Multiple organisation review scrape:
 
-1: Populate the organisations.json with the necessary variables based on if scraping from Indeed, Seek, or both.
+### 1: Populate the organisations.json with the necessary variables based on if scraping from Indeed, Seek, or both.
 
 Example: Scraping multiple of Indeed.com only.
 ```json
@@ -108,11 +108,10 @@ Example: Scraping multiple of Indeed.com and Seek.com combined.
 }
 ```
 
-websites: "Indeed" | "Seek" | "Both"
-output_name: Desired output CSV filename (excluding the .csv part)
-data: Alternative data to organisations.json (empty by default)
+* websites: "Indeed" | "Seek" | "Both"
+* data: Alternative data to organisations.json (empty by default)
 
-2: Call multi_review_scrape(websites, output_name, data).
+### 2: Call multi_review_scrape(websites, output_name, data).
 
 ```python
 multi_review_scrape("both", "Reviews-Data")
