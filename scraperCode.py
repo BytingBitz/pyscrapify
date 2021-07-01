@@ -10,27 +10,23 @@ import re
 # Function: grab_HTML
 def grab_HTML(website, seek_url, start, country=None, attempts=None):
     ''' Returns: Selected website page soup. '''
-    if attempts is None:
-        attempts = 1
-    try:
-        # Build url based on website, return soup.
-        if website == "Indeed":
-            req = lib.Request(seek_url+'?start='+str(start)+'&fcountry='+country,
-                              headers={'User-Agent': 'Mozilla/5.0'})
-        else:
-            req = lib.Request(seek_url+'?page='+str(start),
-                              headers={'User-Agent': 'Mozilla/5.0'})
-        webpage = lib.urlopen(req)
-        return BeautifulSoup(webpage, 'html.parser')
-    except:
+    for attempts in range(15):
+        try:
+            # Build url based on website, return soup.
+            if website == "Indeed":
+                req = lib.Request(seek_url+'?start='+str(start)+'&fcountry='+country,
+                                  headers={'User-Agent': 'Mozilla/5.0'})
+            else:
+                req = lib.Request(seek_url+'?page='+str(start),
+                                  headers={'User-Agent': 'Mozilla/5.0'})
+            webpage = lib.urlopen(req)
+            return BeautifulSoup(webpage, 'html.parser')
         # If page grab fails, retry up to 15 times.
-        print(f"Page grab failed, retrying - {attempts}/15")
-        attempts = attempts + 1
-        if attempts > 15:
-            print("Failed to grab HTML, crashed")
-            exit(0)
-        sleep(1)
-        return grab_HTML(website, seek_url, start, country, attempts)
+        except:
+            print(f"Page grab failed, retrying - {attempts + 1}/15")
+            continue
+    print("Failed to grab HTML, crashed")
+    exit(0)
 
 # Function append_CSV
 def append_CSV(filename, organisation, website, year, ratings,
