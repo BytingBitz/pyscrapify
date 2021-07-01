@@ -96,7 +96,7 @@ Example: Scraping multiple of Indeed.com and Seek.com combined.
             "organisation": "Aldi",
             "indeed_url": "https://au.indeed.com/cmp/Aldi/reviews",
             "indeed_country": "AU",
-            "seek_url": "https://www.seek.com.au/companies/aldi-432489/reviews",
+            "seek_url": "https://www.seek.com.au/companies/aldi-432489/reviews"
         },
         {
             "organisation": "Kmart",
