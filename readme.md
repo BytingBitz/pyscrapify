@@ -124,6 +124,9 @@ multi_review_scrape("both", "Reviews-Data")
 This project was inspired and to an extent guided by the work of tim-sauchuk on a now broken Indeed.com scrape tool.
 Link: https://github.com/tim-sauchuk/Indeed-Company-Review-Scraper
 
+Additionally, McJeffr provided very valuable feedback that helped in guiding this project.
+Link: https://github.com/McJeffr
+
 ***
 # Future:
 ---
