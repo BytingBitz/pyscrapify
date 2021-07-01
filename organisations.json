@@ -2,14 +2,18 @@
     "configs":
     [
         {
-            "url": "https://au.indeed.com/cmp/Indeed/reviews",
+            "organisation": "Indeed",
             "name": "Indeed-Reviews",
-            "country": "AU"
+            "indeed_url": "https://au.indeed.com/cmp/Indeed/reviews",
+            "indeed_country": "AU",
+            "seek_url": ""
         },
         {
-            "url": "https://au.indeed.com/cmp/Federal-Government/reviews",
+            "organisation": "Australia Government",
             "name": "Federal-Government-Reviews",
-            "country": "AU"
+            "indeed_url": "https://au.indeed.com/cmp/Federal-Government/reviews",
+            "indeed_country": "AU",
+            "seek_url": ""
         }
     ]
 }
