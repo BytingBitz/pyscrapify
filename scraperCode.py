@@ -1,8 +1,6 @@
-# Pull all reviews data from Indeed.com for specific organisations using provided arguments.
-# Creation Date: 27/06/2021
-
 from bs4 import BeautifulSoup
 import urllib.request as lib
+from pathlib import Path
 from time import sleep
 from math import ceil
 import json
@@ -31,18 +29,21 @@ def grab_HTML(website, url, start, country=None, attempts=None):
         sleep(1)
         return grab_HTML(website, url, start, country, attempts)
 
-# Function build_CSV
-def build_CSV(filename, organisation, year, ratings, status, locations, positions, titles, reviews):
+# Function append_CSV
+def append_CSV(filename, organisation, website, year, ratings, status, locations, positions, titles, reviews):
     ''' Returns: Built and named CSV file containing organisation review data. '''
-    with open(filename + ".csv", 'w', newline = '', encoding = 'utf-8') as csv_file:
+    root = Path('/' + filename + '.csv')
+    headings = False
+    if root.exists(): headings = True
+    with open(filename + ".csv", 'a', newline = '', encoding = 'utf-8') as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerow(["Organisation", "Year", "Rating", "Status", "Location", "Position", "Title", "Review"])
-        print(len(organisation), len(year), len(ratings), len(status), len(locations), 
+        if headings == True:
+            writer.writerow(["Organisation", "Website", "Year", "Rating", "Status", "Location", "Position", "Title", "Review"])
+        print(len(organisation), len(website), len(year), len(ratings), len(status), len(locations), 
             len(positions), len(titles), len(reviews))
         for i in range(len(year)):
-            writer.writerow([organisation[i], year[i], ratings[i], status[i], 
-                locations[i], positions[i], titles[i], 
-                repr(reviews[i])[1:-1]])
+            writer.writerow([organisation[i], website[i], year[i], ratings[i], status[i], 
+                locations[i], positions[i], repr(titles[i])[1:-1], repr(reviews[i])[1:-1]])
 
 # Function: review_volume
 def review_volume(soup, website, reviews_per_page):
@@ -97,8 +98,9 @@ def indeed_scrape(organisation, url, output_name, country):
         # Extract review data.
         for review_data in soup.find_all('span', attrs={'itemprop': 'reviewBody'})[jump:]:
             reviews.append(review_data.text)
-    organisation = [organisation] * number_reviews
-    build_CSV(output_name, organisation, year, ratings, status, locations, positions, titles, reviews)
+    organisations = [organisation] * number_reviews
+    website = ["Indeed"] * number_reviews
+    append_CSV(output_name, organisations, website, year, ratings, status, locations, positions, titles, reviews)
     print("Finished")
 
 # Function: seek_review_scrape
@@ -110,43 +112,55 @@ def seek_scrape(organisation, url, output_name):
     ratings, positions, locations, titles, status, year, reviews = [],[],[],[],[],[],[]
     number_reviews, number_pages = review_volume(global_soup, "Seek", reviews_per_page)
     print(f"Found {number_reviews} reviews")
-    number_pages = 1
+    parent_class = None
+    for page in range(number_pages):
+        try:
+            soup = grab_HTML("Seek", url, page + 1)
+            optional_data = soup.find('div', attrs={'id': 'work-location'})
+            parent_class = ((str(optional_data.find_parent('div')).split('<div class="'))[1].split('"')[0])
+            break
+        except: continue
     for page in range(number_pages):
         sleep(1)
         print(f"Page {page + 1} of {number_pages}")
         soup = grab_HTML("Seek", url, page + 1) 
-        json_content = soup.find('button', attrs={'script type': 'application/ld+json'})
-        json_thing = json_content
-        more_json = json_thing
-        print(json.loads(more_json))
-        # Extract location data.
-        for location_data in soup.find_all('div', attrs={'id': 'work-location'}):
-            locations.append(location_data.text)
-        # Extract status data.
-        for status_data in soup.find_all('div', attrs={'id': 'years-worked-with'}):
-            if "current" in status_data.text: status.append("Current")
-            if "former" in status_data.text: status.append("Former")
-            else: status.append("Unknown")
-        # Extract positions data and author text.
-
-        # Extract status, location, and year data.
-        
-        # Extract rating data.
-        
-        # Extract title data.
-        
+        json_scripts = soup.find_all('script', attrs={'type': 'application/ld+json'})
+        json_data = json.loads(json_scripts[1].contents[0])
+        # Extract location and status data.
+        if parent_class != None:
+            for optional_data in soup.find_all('div', attrs={'class': parent_class}):
+                try:
+                    location_data = optional_data.find('div', attrs={'id': 'work-location'})
+                    locations.append(location_data.text)
+                except: locations.append("Unknown")
+                status_data = optional_data.text
+                if "current" in status_data: status.append("Current")
+                elif "former" in status_data: status.append("Former")
+                else: status.append("Unknown")
+        # Extract year, position, rating, and title data.
+        for review in json_data['review']:
+            year.append(review['datePublished'][:4])
+            positions.append(review['author']['jobTitle'])
+            ratings.append(review['reviewRating']['ratingValue'])
+            titles.append(review['reviewBody'])
         # Extract review data.
-    print(status)
-    organisation = [organisation] * number_reviews
-
-seek_scrape("Kmart", "https://www.seek.com.au/companies/kmart-432302/reviews", "Seek_Kmart")
-
-
-# Scrape reviews of a single organisation.
-#indeed_scrape("Target", "https://au.indeed.com/cmp/Indeed/reviews", "Indeed-Reviews", "AU")
+        good_review, challenge_review = [],[]
+        for good_review_data in soup.find_all('div', attrs={'id': 'good-review'}):
+            good_review.append(good_review_data.text[:-16])
+        for challenge_review_data in soup.find_all('div', attrs={'id': 'challange-review'}):
+            challenge_review.append(challenge_review_data.text[:-16])
+        for review in range(len(good_review)):
+            reviews.append(good_review[review] + ". " + challenge_review[review])
+    if parent_class is None:
+        status = ["Unknown"] * number_reviews
+        locations = ["Unknown"] * number_reviews
+    organisations = [organisation] * number_reviews
+    website = ["Seek"] * number_reviews
+    append_CSV(output_name, organisations, website, year, ratings, status, locations, positions, titles, reviews)
+    print("Finished")
 
 # Function: multi_review_scrape
-def multi_scrape(data=None):
+def multi_scrape(websites, output_name, data=None):
     ''' Returns: Review data for multiple Indeed.com organisation as CSV files. '''
     # Load data from file if none is supplied.
     if not data:
@@ -156,12 +170,21 @@ def multi_scrape(data=None):
     print(f"Found {number_scrapes} organisation reviews to scrape ")
     for i in range(number_scrapes):
         config = data["configs"][i]
-        url = config.get("url")
-        name = config.get("name")
-        country = config.get("country")
-        print(f"Organisation {i + 1} of {number_scrapes}")
-        indeed_scrape(url, name, country)
-    print("All organisations finished")
-
-# Scrape reviews of multiple organisations.    
-#multi_review_scrape()
+        organisation = config.get("organisation")
+        if websites == "Indeed":
+            indeed_url = config.get("indeed_url")
+            indeed_country = config.get("indeed_country")
+            print(f"Organisation {i + 1} of {number_scrapes}")
+            indeed_scrape(organisation, indeed_url, output_name, indeed_country)
+        elif websites == "Seek":
+            seek_url = config.get("seek_url")
+            print(f"Organisation {i + 1} of {number_scrapes}")
+            seek_scrape(organisation, seek_url, output_name)
+        elif websites == "Both":
+            seek_url = config.get("seek_url")
+            indeed_url = config.get("indeed_url")
+            indeed_country = config.get("indeed_country")
+            print(f"Organisation {i + 1} of {number_scrapes}")
+            indeed_scrape(organisation, indeed_url, output_name, indeed_country)
+            seek_scrape(organisation, seek_url, output_name)    
+    print("All organisation scrapes finished")
