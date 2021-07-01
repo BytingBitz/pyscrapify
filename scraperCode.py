@@ -8,15 +8,15 @@ import csv
 import re
 
 # Function: grab_HTML
-def grab_HTML(website, url, start, country=None, attempts=None):
+def grab_HTML(website, seek_url, start, country=None, attempts=None):
     ''' Returns: Selected website page soup. '''
     if attempts is None: attempts = 1
     try:
         if website == "Indeed":
-            req = lib.Request(url+'?start='+str(start)+'&fcountry='+country, 
+            req = lib.Request(seek_url+'?start='+str(start)+'&fcountry='+country, 
                 headers={'User-Agent': 'Mozilla/5.0'})
         else:
-            req = lib.Request(url+'?page='+str(start),
+            req = lib.Request(seek_url+'?page='+str(start),
                 headers={'User-Agent': 'Mozilla/5.0'})
         webpage = lib.urlopen(req)
         return BeautifulSoup(webpage, 'html.parser')
@@ -27,7 +27,7 @@ def grab_HTML(website, url, start, country=None, attempts=None):
             print("Failed to grab HTML, crashed")
             exit(0)
         sleep(1)
-        return grab_HTML(website, url, start, country, attempts)
+        return grab_HTML(website, seek_url, start, country, attempts)
 
 # Function append_CSV
 def append_CSV(filename, organisation, website, year, ratings, status, locations, positions, titles, reviews):
@@ -63,10 +63,10 @@ def review_volume(soup, website, reviews_per_page):
     return number_reviews, number_pages
  
 # Function: indeed_review_scrape
-def indeed_scrape(organisation, url, output_name, country):
+def indeed_scrape(organisation, indeed_url, output_name, indeed_country):
     ''' Returns: Review data for Indeed.com organisation as CSV with output name. '''
     print("Scraping Indeed reviews")
-    global_soup = grab_HTML("Indeed", url, 0, country)
+    global_soup = grab_HTML("Indeed", indeed_url, 0, indeed_country)
     reviews_per_page = 20
     ratings, positions, locations, titles, status, year, reviews = [],[],[],[],[],[],[]
     number_reviews, number_pages = review_volume(global_soup, "Indeed", reviews_per_page)
@@ -76,7 +76,7 @@ def indeed_scrape(organisation, url, output_name, country):
         print(f"Page {page + 1} of {number_pages}")
         # Configure to ignore first (duplicate) review after first page.
         if page == 0: soup, jump = global_soup, 0
-        else: soup, jump = grab_HTML("Indeed", url, page * reviews_per_page, country), 1
+        else: soup, jump = grab_HTML("Indeed", indeed_url, page * reviews_per_page, indeed_country), 1
         # Extract positions data and author text.
         author_text = []
         for author_data in soup.find_all('span', attrs={'itemprop': 'author'})[jump:]:
@@ -104,10 +104,10 @@ def indeed_scrape(organisation, url, output_name, country):
     print("Finished")
 
 # Function: seek_review_scrape
-def seek_scrape(organisation, url, output_name):
+def seek_scrape(organisation, seek_url, output_name):
     ''' Returns: Review data for Seek.com organisation as CSV with output name. '''
     print("Scraping Seek reviews")
-    global_soup = grab_HTML("Seek", url, 1)
+    global_soup = grab_HTML("Seek", seek_url, 1)
     reviews_per_page = 10
     ratings, positions, locations, titles, status, year, reviews = [],[],[],[],[],[],[]
     number_reviews, number_pages = review_volume(global_soup, "Seek", reviews_per_page)
@@ -115,7 +115,7 @@ def seek_scrape(organisation, url, output_name):
     parent_class = None
     for page in range(number_pages):
         try:
-            soup = grab_HTML("Seek", url, page + 1)
+            soup = grab_HTML("Seek", seek_url, page + 1)
             optional_data = soup.find('div', attrs={'id': 'work-location'})
             parent_class = ((str(optional_data.find_parent('div')).split('<div class="'))[1].split('"')[0])
             break
@@ -123,7 +123,7 @@ def seek_scrape(organisation, url, output_name):
     for page in range(number_pages):
         sleep(1)
         print(f"Page {page + 1} of {number_pages}")
-        soup = grab_HTML("Seek", url, page + 1) 
+        soup = grab_HTML("Seek", seek_url, page + 1) 
         json_scripts = soup.find_all('script', attrs={'type': 'application/ld+json'})
         json_data = json.loads(json_scripts[1].contents[0])
         # Extract location and status data.
