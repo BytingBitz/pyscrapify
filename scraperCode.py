@@ -42,9 +42,15 @@ def append_CSV(filename, organisation, website, year, ratings,
         if headings == True:
             writer.writerow(["Organisation", "Website", "Year", "Rating",
                              "Status", "Location", "Position", "Title", "Review"])
-        # If these values don't match, something went wrong.
-        print(len(organisation), len(website), len(year), len(ratings), len(status),
-              len(locations), len(positions), len(titles), len(reviews))
+        # If these values don't match, exit as something went wrong.
+        test = (len(organisation), len(website), len(year), len(ratings), len(status),
+                len(locations), len(positions), len(titles), len(reviews))
+        print(test)
+        if sum(test) == test[0] * 9:
+            print("Check passed")
+        else:
+            print("Check failed, data read failure")
+            exit(0)
         # Write generated data to CSV files by row.
         for i in range(len(year)):
             writer.writerow([organisation[i], website[i], year[i], ratings[i], status[i],
@@ -64,13 +70,14 @@ def review_volume(soup, website, reviews_per_page):
             except:
                 number_reviews = int(re.findall(
                     r'\d+', overview_data.find('span').text)[0])
+            number_pages = ceil((number_reviews - 1) / reviews_per_page)
         elif website == "Seek":
             # Pull Seek review count.
             overview_data = soup.find('div', attrs={'id': 'app'})
             number_reviews = int((overview_data.text.split(
                 "ReviewOverviewReviews"))[1].split("JobsTop")[0])
-        # Calculate number pages.
-        number_pages = ceil((number_reviews - 1) / reviews_per_page)
+            number_pages = ceil((number_reviews) / reviews_per_page)
+        # Return number of pages and reviews.
         return number_reviews, number_pages
     except:
         print(f"Failed to determine {website} review volume, crashed")
