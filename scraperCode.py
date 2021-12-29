@@ -65,7 +65,7 @@ def append_CSV(filename, dic, number_reviews):
     with open(filename + ".csv", 'a', newline='', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', lineterminator='\n')
         if not file_exists:
-            headers = ["Organisation", "Website", "Year", "Country", "Rating",
+            headers = ["Organisation", "Website", "Country", "year", "Rating",
                       "Status", "Location", "Position", "Title", "Review", "Pros", "Cons"]
             writer.writerow(headers)
         values = dic.values()
