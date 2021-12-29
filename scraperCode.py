@@ -291,10 +291,10 @@ def execute_indeed(config, count: int, number_scrapes: int, name: str):
     firm = config.get("organisation")
     indeed_url = config.get("indeed_url")
     indeed_country = config.get("indeed_country")
-    try:
+    if indeed_url is not None and indeed_country is not None:
         print(f"Organisation {count + 1} of {number_scrapes}")
         indeed_scrape(firm, indeed_url, name, indeed_country)
-    except:
+    else:
         print(f"Indeed skipped for firm {count + 1} of {number_scrapes}")
 
 
@@ -302,10 +302,10 @@ def execute_seek(config, count: int, number_scrapes: int, name: str):
     ''' Returns: specified seek organisation scrape. '''
     firm = config.get("organisation")
     seek_url = config.get("seek_url")
-    try:
+    if seek_url is not None:
         print(f"Organisation {count + 1} of {number_scrapes}")
         seek_scrape(firm, seek_url, name)
-    except:
+    else:
         print(f"Seek skipped for firm {count + 1} of {number_scrapes}")
 
 
