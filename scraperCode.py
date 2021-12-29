@@ -1,18 +1,34 @@
 from bs4 import BeautifulSoup
 import urllib.request as lib
-from pathlib import Path
 from time import sleep
 from math import ceil
+import os.path
 import json
 import csv
 import re
 
-# Function: grab_HTML
+
+def dictionary_build():
+    return {
+        'organisation': [],
+        'website': [],
+        'year': [],
+        'country': [],
+        'rating': [],
+        'status': [],
+        'location': [],
+        'position': [],
+        'title': [],
+        'review': [],
+        'pro': [],
+        'con': []
+    }
+
+
 def grab_HTML(website, seek_url, start, country=None, attempts=None):
-    ''' Returns: Selected website page soup. '''
+    ''' Returns: Selected webpage soup. '''
     for attempts in range(15):
         try:
-            # Build url based on website, return soup.
             if website == "Indeed":
                 req = lib.Request(seek_url+'?start='+str(start)+'&fcountry='+country,
                                   headers={'User-Agent': 'Mozilla/5.0'})
@@ -21,49 +37,63 @@ def grab_HTML(website, seek_url, start, country=None, attempts=None):
                                   headers={'User-Agent': 'Mozilla/5.0'})
             webpage = lib.urlopen(req)
             return BeautifulSoup(webpage, 'html.parser')
-        # If page grab fails, retry up to 15 times.
         except:
+            sleep(5)
             print(f"Page grab failed, retrying - {attempts + 1}/15")
             continue
-    print("Failed to grab HTML, crashed")
+    print("Failed to grab HTML")
     exit(0)
 
-# Function append_CSV
-def append_CSV(filename, organisation, website, year, ratings,
-               status, locations, positions, titles, reviews):
-    ''' Returns: Built and named CSV file containing organisation review data. '''
-    root = Path('/' + filename + '.csv')
-    # Check if file is new and requires headings.
-    headings = False
-    if root.exists():
-        headings = True
-    with open(filename + ".csv", 'a', newline='', encoding='utf-8') as csv_file:
-        writer = csv.writer(csv_file)
-        if headings == True:
-            writer.writerow(["Organisation", "Website", "Year", "Rating",
-                             "Status", "Location", "Position", "Title", "Review"])
-        # If these values don't match, exit as something went wrong.
-        test = (len(organisation), len(website), len(year), len(ratings), len(status),
-                len(locations), len(positions), len(titles), len(reviews))
-        print(test)
-        if sum(test) == test[0] * 9:
-            print("Check passed")
-        else:
-            print("Check failed, data read failure")
-            exit(0)
-        # Write generated data to CSV files by row.
-        for i in range(len(year)):
-            writer.writerow([organisation[i], website[i], year[i], ratings[i], status[i],
-                             locations[i], positions[i], repr(titles[i])[1:-1], repr(reviews[i])[1:-1]])
 
-# Function: review_volume
+def data_validation(values, length, number_reviews):
+    ''' Validates data meets criteria. '''
+    if all(len(item) == length for item in values):
+        print("Values length match check passed")
+    else:
+        print("Values length test failed, read failure")
+        exit(0)
+    if length == number_reviews:
+        print("Expected reviews count check passed")
+    else:
+        print("Expected length test failed, read failure")
+        exit(0)
+
+
+def append_CSV(filename, dic, number_reviews):
+    ''' Returns: Built and named CSV file containing firm review data. '''
+    file_exists = os.path.isfile(filename + ".csv")
+    with open(filename + ".csv", 'a', newline='', encoding='utf-8') as csv_file:
+        writer = csv.writer(csv_file, delimiter=',', lineterminator='\n')
+        if not file_exists:
+            headers = ["Organisation", "Website", "Year", "Country", "Rating",
+                      "Status", "Location", "Position", "Title", "Review", "Pros", "Cons"]
+            writer.writerow(headers)
+        values = dic.values()
+        length = len(dic['organisation'])
+        data_validation(values, length, number_reviews)
+        for i in range(length):
+            writer.writerow([
+                dic['organisation'][i],
+                dic['website'][i],
+                dic['country'][i],
+                dic['year'][i],
+                dic['rating'][i],
+                dic['status'][i],
+                dic['location'][i],
+                dic['position'][i],
+                repr(dic['title'][i])[1:-1],
+                repr(dic['review'][i])[1:-1],
+                dic['pro'][i],
+                dic['con'][i]]
+            )
+
+
 def review_volume(soup, website, reviews_per_page):
     ''' Returns: Detected number reviews and number pages of reviews on website. '''
     try:
         if website == "Indeed":
             overview_data = soup.find(
                 'div', attrs={'data-testid': 'review-count'})
-            # Pull Indeed review count, second method may be necessary.
             try:
                 number_reviews = int(overview_data.find(
                     'span').find('b').text.replace(',', ''))
@@ -72,77 +102,101 @@ def review_volume(soup, website, reviews_per_page):
                     r'\d+', overview_data.find('span').text)[0])
             number_pages = ceil((number_reviews - 1) / reviews_per_page)
         elif website == "Seek":
-            # Pull Seek review count.
             overview_data = soup.find('div', attrs={'id': 'app'})
             number_reviews = int((overview_data.text.split(
                 "ReviewOverviewReviews"))[1].split("JobsTop")[0])
             number_pages = ceil((number_reviews) / reviews_per_page)
-        # Return number of pages and reviews.
         return number_reviews, number_pages
     except:
-        print(f"Failed to determine {website} review volume, crashed")
+        print(f"Failed to determine {website} review volume")
         exit(0)
 
-# Function: indeed_review_scrape
-def indeed_scrape(organisation, indeed_url, output_name, indeed_country):
-    ''' Returns: Review data for Indeed.com organisation as CSV with output name. '''
+
+def indeed_position(big_soup, page, indeed_url, indeed_country, reviews_per_page):
+    ''' Returns: Review specific soup and index. '''
+    if page == 0:
+        soup, jump = big_soup, 0
+    else:
+        soup, jump = grab_HTML("Indeed", indeed_url,
+                               page * reviews_per_page, indeed_country), 1
+    return soup, jump
+
+
+def indeed_heading(soup, jump, dic):
+    ''' Returns: Extracted review Indeed header data. '''
+    author_text = []
+    for author_data in soup.find_all('span', attrs={'itemprop': 'author'})[jump:]:
+        dic['position'].append(author_data.find('meta').attrs['content'])
+        author_text.append(author_data.text)
+    for author_entry in author_text:
+        split_data = author_entry.rsplit(' - ', 2)
+        if "(Current Employee)" in split_data[0]:
+            dic['status'].append("Current")
+        else:
+            dic['status'].append("Former")
+        dic['location'].append(split_data[1])
+        dic['year'].append(split_data[2][-4:])
+    return dic
+
+
+def indeed_body(soup, jump, dic):
+    ''' Returns: Extracted review Indeed body data. '''
+    for rating_data in soup.find_all('div', attrs={'itemprop': 'reviewRating'})[jump:]:
+        dic['rating'].append(rating_data.find('meta').attrs['content'])
+    for title_data in soup.find_all('h2', attrs={'data-testid': 'title'})[jump:]:
+        dic['title'].append(title_data.text)
+    for review_data in soup.find_all('span', attrs={'itemprop': 'reviewBody'})[jump:]:
+        dic['review'].append(review_data.text)
+    return dic
+
+
+def indeed_footer(soup, jump, dic):
+    ''' Returns: Extracted review Indeed footer data. '''
+    for procon_data in soup.find_all('div', attrs={'itemprop': 'review'})[jump:]:
+        try:
+            dic['pro'].append(procon_data.find(
+                'h2', string='Pros').next_sibling.text)
+        except:
+            dic['pro'].append("")
+        try:
+            dic['con'].append(procon_data.find(
+                'h2', string='Cons').next_sibling.text)
+        except:
+            dic['con'].append("")
+    return dic
+
+
+def indeed_csv(filename, firm, indeed_country, number_reviews, dic):
+    ''' Completes Indeed dictionary population. '''
+    dic['organisation'] = [firm] * number_reviews
+    dic['website'] = ["Indeed"] * number_reviews
+    dic['country'] = [indeed_country] * number_reviews
+    append_CSV(filename, dic, number_reviews)
+    print("Indeed finished")
+
+
+def indeed_scrape(firm, indeed_url, filename, indeed_country):
+    ''' Scrapes all review data for given Indeed config. '''
     print("Scraping Indeed reviews")
-    global_soup = grab_HTML("Indeed", indeed_url, 0, indeed_country)
+    big_soup = grab_HTML("Indeed", indeed_url, 0, indeed_country)
+    dic = dictionary_build()
     reviews_per_page = 20
-    ratings, positions, locations, titles, status, year, reviews = [], [], [], [], [], [], []
     number_reviews, number_pages = review_volume(
-        global_soup, "Indeed", reviews_per_page)
+        big_soup, "Indeed", reviews_per_page)
     print(f"Found {number_reviews} reviews")
     for page in range(number_pages):
-        sleep(1)
+        sleep(0.5)
         print(f"Page {page + 1} of {number_pages}")
-        # Configure to ignore first (duplicate) review after first page.
-        if page == 0:
-            soup, jump = global_soup, 0
-        else:
-            soup, jump = grab_HTML("Indeed", indeed_url,
-                                   page * reviews_per_page, indeed_country), 1
-        # Extract positions data and author text.
-        author_text = []
-        for author_data in soup.find_all('span', attrs={'itemprop': 'author'})[jump:]:
-            positions.append(author_data.find('meta').attrs['content'])
-            author_text.append(author_data.text)
-        # Extract status, location, and year data.
-        for author_entry in author_text:
-            split_data = author_entry.rsplit(' - ', 2)
-            if "(Current Employee)" in split_data[0]:
-                status.append("Current")
-            else:
-                status.append("Former")
-            locations.append(split_data[1])
-            year.append(split_data[2][-4:])
-        # Extract rating data.
-        for rating_data in soup.find_all('div', attrs={'itemprop': 'reviewRating'})[jump:]:
-            ratings.append(rating_data.find('meta').attrs['content'])
-        # Extract title data.
-        for title_data in soup.find_all('h2', attrs={'data-testid': 'title'})[jump:]:
-            titles.append(title_data.text)
-        # Extract review data.
-        for review_data in soup.find_all('span', attrs={'itemprop': 'reviewBody'})[jump:]:
-            reviews.append(review_data.text)
-    # Prepare and build CSV file.
-    organisations = [organisation] * number_reviews
-    website = ["Indeed"] * number_reviews
-    append_CSV(output_name, organisations, website, year, ratings,
-               status, locations, positions, titles, reviews)
-    print("Finished")
+        soup, jump = indeed_position(
+            big_soup, page, indeed_url, indeed_country, reviews_per_page)
+        dic = indeed_heading(soup, jump, dic)
+        dic = indeed_body(soup, jump, dic)
+        dic = indeed_footer(soup, jump, dic)
+    indeed_csv(filename, firm, indeed_country, number_reviews, dic)
 
-# Function: seek_review_scrape
-def seek_scrape(organisation, seek_url, output_name):
-    ''' Returns: Review data for Seek.com organisation as CSV with output name. '''
-    print("Scraping Seek reviews")
-    global_soup = grab_HTML("Seek", seek_url, 1)
-    reviews_per_page = 10
-    ratings, positions, locations, titles, status, year, reviews = [], [], [], [], [], [], []
-    number_reviews, number_pages = review_volume(
-        global_soup, "Seek", reviews_per_page)
-    print(f"Found {number_reviews} reviews")
-    # Find parent_class hash constant for location and status HTML data.
+
+def seek_position(number_pages, seek_url):
+    ''' Returns: Review specific soup and parent class. '''
     parent_class = None
     for page in range(number_pages):
         try:
@@ -153,87 +207,126 @@ def seek_scrape(organisation, seek_url, output_name):
             break
         except:
             continue
+    return optional_data, parent_class
+
+
+def seek_header(soup, dic, parent_class, optional_data):
+    ''' Returns: Extracted review Seek header data. '''
+    if parent_class is None:
+        return
+    for optional_data in soup.find_all('div', attrs={'class': parent_class}):
+        try:
+            location_data = optional_data.find(
+                'div', attrs={'id': 'work-location'})
+            dic['location'].append(location_data.text)
+        except:
+            dic['location'].append("Unknown")
+        status_data = optional_data.text
+        if "current" in status_data:
+            dic['status'].append("Current")
+        elif "former" in status_data:
+            dic['status'].append("Former")
+        else:
+            dic['status'].append("Unknown")
+    return dic
+
+
+def seek_body(soup, dic):
+    ''' Returns: Extracted review Seek body data. '''
+    json_scripts = soup.find_all(
+        'script', attrs={'type': 'application/ld+json'})
+    json_data = json.loads(json_scripts[1].contents[0])
+    for review in json_data['review']:
+        dic['year'].append(review['datePublished'][:4])
+        dic['position'].append(review['author']['jobTitle'])
+        dic['rating'].append(review['reviewRating']['ratingValue'])
+        dic['title'].append(review['reviewBody'])
+    return dic
+
+
+def seek_footer(soup, dic):
+    ''' Returns: Extracted review Seek footer data. '''
+    for good_review_data in soup.find_all('div', attrs={'id': 'good-review'}):
+        dic['pro'].append(' '.join(good_review_data.text[:-16].split()))
+    for challenge_review_data in soup.find_all('div', attrs={'id': 'challange-review'}):
+        dic['con'].append(' '.join(challenge_review_data.text[:-16].split()))
+    return dic
+
+
+def seek_csv(filename, firm, parent_class, number_reviews, dic):
+    ''' Completes Seek dictionary population. '''
+    if parent_class is None:
+        dic['status'] = ["Unknown"] * number_reviews
+        dic['location'] = ["Unknown"] * number_reviews
+    dic['organisation'] = [firm] * number_reviews
+    dic['website'] = ["Seek"] * number_reviews
+    dic['country'] = ["AU"] * number_reviews
+    dic['review'] = [""] * number_reviews
+    append_CSV(filename, dic, number_reviews)
+    print("Seek finished")
+
+
+def seek_scrape(firm, seek_url, filename):
+    ''' Scrapes all review data for given Seek config. '''
+    print("Scraping Seek reviews")
+    big_soup = grab_HTML("Seek", seek_url, 1)
+    reviews_per_page = 10
+    dic = dictionary_build()
+    number_reviews, number_pages = review_volume(
+        big_soup, "Seek", reviews_per_page)
+    print(f"Found {number_reviews} reviews")
+    optional_data, parent_class = seek_position(number_pages, seek_url)
     for page in range(number_pages):
-        sleep(1)
+        sleep(0.5)
         print(f"Page {page + 1} of {number_pages}")
         soup = grab_HTML("Seek", seek_url, page + 1)
-        json_scripts = soup.find_all(
-            'script', attrs={'type': 'application/ld+json'})
-        json_data = json.loads(json_scripts[1].contents[0])
-        # Extract location and status data.
-        if parent_class != None:
-            for optional_data in soup.find_all('div', attrs={'class': parent_class}):
-                try:
-                    location_data = optional_data.find(
-                        'div', attrs={'id': 'work-location'})
-                    locations.append(location_data.text)
-                except:
-                    locations.append("Unknown")
-                status_data = optional_data.text
-                if "current" in status_data:
-                    status.append("Current")
-                elif "former" in status_data:
-                    status.append("Former")
-                else:
-                    status.append("Unknown")
-        # Extract year, position, rating, and title data.
-        for review in json_data['review']:
-            year.append(review['datePublished'][:4])
-            positions.append(review['author']['jobTitle'])
-            ratings.append(review['reviewRating']['ratingValue'])
-            titles.append(review['reviewBody'])
-        # Extract review data.
-        good_review, challenge_review = [], []
-        for good_review_data in soup.find_all('div', attrs={'id': 'good-review'}):
-            good_review.append(good_review_data.text[:-16])
-        for challenge_review_data in soup.find_all('div', attrs={'id': 'challange-review'}):
-            challenge_review.append(challenge_review_data.text[:-16])
-        for review in range(len(good_review)):
-            reviews.append(good_review[review] +
-                           ". " + challenge_review[review])
-    # If no status or location data exists, build correct Unknown list.
-    if parent_class is None:
-        status = ["Unknown"] * number_reviews
-        locations = ["Unknown"] * number_reviews
-    # Prepare and build CSV file.
-    organisations = [organisation] * number_reviews
-    website = ["Seek"] * number_reviews
-    append_CSV(output_name, organisations, website, year, ratings,
-               status, locations, positions, titles, reviews)
-    print("Finished")
+        dic = seek_header(soup, dic, parent_class, optional_data)
+        dic = seek_body(soup, dic)
+        dic = seek_footer(soup, dic)
+    seek_csv(filename, firm, parent_class, number_reviews, dic)
 
-# Function: multi_review_scrape
-def multi_scrape(websites, output_name, data=None):
-    ''' Returns: Review data for multiple Indeed.com organisation as CSV files. '''
-    # Load data from default file if none is supplied.
-    if not data:
-        with open("organisations.json") as content:
-            data = json.load(content)
-    # Read number seperate organisations to scrape.
+
+def execute_indeed(config, count: int, number_scrapes: int, name: str):
+    ''' Returns: Specified Indeed Organisation Scrape. '''
+    firm = config.get("organisation")
+    indeed_url = config.get("indeed_url")
+    indeed_country = config.get("indeed_country")
+    try:
+        print(f"Organisation {count + 1} of {number_scrapes}")
+        indeed_scrape(firm, indeed_url, name, indeed_country)
+    except:
+        print(f"Indeed skipped for firm {count + 1} of {number_scrapes}")
+
+
+def execute_seek(config, count: int, number_scrapes: int, name: str):
+    ''' Returns: specified seek organisation scrape. '''
+    firm = config.get("organisation")
+    seek_url = config.get("seek_url")
+    try:
+        print(f"Organisation {count + 1} of {number_scrapes}")
+        seek_scrape(firm, seek_url, name)
+    except:
+        print(f"Seek skipped for firm {count + 1} of {number_scrapes}")
+
+
+def execute_both(config, count: int, number_scrapes: int, name: str):
+    ''' Returns: Specified Indeed and Seek Organisation Scrapes'''
+    execute_indeed(config, count, number_scrapes, name)
+    execute_seek(config, count, number_scrapes, name)
+
+
+def multi_scrape(websites, name):
+    ''' Returns: Review data for multiple firm as CSV files. '''
+    with open("organisations.json") as content:
+        data = json.load(content)
     number_scrapes = len(data["configs"])
-    print(f"Found {number_scrapes} organisation reviews to scrape ")
+    print(f"Found {number_scrapes} firm reviews to scrape")
     for i in range(number_scrapes):
         config = data["configs"][i]
-        organisation = config.get("organisation")
-        # If true, only scrape from Indeed.
         if websites == "Indeed":
-            indeed_url = config.get("indeed_url")
-            indeed_country = config.get("indeed_country")
-            print(f"Organisation {i + 1} of {number_scrapes}")
-            indeed_scrape(organisation, indeed_url,
-                          output_name, indeed_country)
-        # If true, only scrape from Seek.
+            execute_indeed(config, i, number_scrapes, name)
         elif websites == "Seek":
-            seek_url = config.get("seek_url")
-            print(f"Organisation {i + 1} of {number_scrapes}")
-            seek_scrape(organisation, seek_url, output_name)
-        # Scrape from both Seek and Indeed.
+            execute_seek(config, i, number_scrapes, name)
         elif websites == "Both":
-            seek_url = config.get("seek_url")
-            indeed_url = config.get("indeed_url")
-            indeed_country = config.get("indeed_country")
-            print(f"Organisation {i + 1} of {number_scrapes}")
-            indeed_scrape(organisation, indeed_url,
-                          output_name, indeed_country)
-            seek_scrape(organisation, seek_url, output_name)
-    print("All organisation scrapes finished")
+            execute_both(config, i, number_scrapes, name)
+    print("All firm scrapes finished")
