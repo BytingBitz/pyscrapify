@@ -290,12 +290,16 @@ def execute_indeed(config, count: int, number_scrapes: int, name: str):
     ''' Returns: Specified Indeed Organisation Scrape. '''
     firm = config.get("organisation")
     indeed_url = config.get("indeed_url")
-    indeed_country = config.get("indeed_country")
-    if indeed_url is not None and indeed_country is not None:
-        print(f"Organisation {count + 1} of {number_scrapes}")
-        indeed_scrape(firm, indeed_url, name, indeed_country)
-    else:
-        print(f"Indeed skipped for firm {count + 1} of {number_scrapes}")
+    indeed_country_list = config.get("indeed_country")
+    if isinstance(indeed_country_list, str):
+        indeed_country_list = [indeed_country_list]
+    print(f"Organisation {count + 1} of {number_scrapes}")
+    for indeed_country in indeed_country_list:
+        print(f"Scraping Indeed Reviews for {firm} in {indeed_country}")
+        if indeed_url is not None and indeed_country is not None:
+            indeed_scrape(firm, indeed_url, name, indeed_country)
+        else:
+            print(f"Indeed skipped for firm {count + 1} of {number_scrapes}")
 
 
 def execute_seek(config, count: int, number_scrapes: int, name: str):
