@@ -30,11 +30,11 @@ def grab_HTML(website, seek_url, start, country=None, attempts=None):
     for attempts in range(15):
         try:
             if website == "Indeed":
-                req = lib.Request(seek_url+'?start='+str(start)+'&fcountry='+country,
+                req = lib.Request(f'{seek_url}?start='+str(start)+'&fcountry='+country,
                                   headers={'User-Agent': 'Mozilla/5.0'})
             else:
-                req = lib.Request(seek_url+'?page='+str(start),
-                                  headers={'User-Agent': 'Mozilla/5.0'})
+                req = lib.Request(f'{seek_url}?page=' + str(start),
+                    headers={'User-Agent': 'Mozilla/5.0'})
             webpage = lib.urlopen(req)
             return BeautifulSoup(webpage, 'html.parser')
         except:
@@ -61,8 +61,8 @@ def data_validation(values, length, number_reviews):
 
 def append_CSV(filename, dic, number_reviews):
     ''' Returns: Built and named CSV file containing firm review data. '''
-    file_exists = os.path.isfile(filename + ".csv")
-    with open(filename + ".csv", 'a', newline='', encoding='utf-8') as csv_file:
+    file_exists = os.path.isfile(f'{filename}.csv')
+    with open(f'{filename}.csv', 'a', newline='', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', lineterminator='\n')
         if not file_exists:
             headers = ["Organisation", "Website", "Country", "year", "Rating",
