@@ -16,8 +16,8 @@ Data collected from Indeed.com & Seek.com for each organisation review:
 * Day: The day on which the review was placed.
 * Title: The title of the user review.
 * Review: The text content of the user review (Indeed only).
-* Pros: The text content of position pros.
-* Cons: The text content of position cons.
+* Pros: The text content of user review pros.
+* Cons: The text content of user review cons.
 
 On Seek.com location and status are not always provided and will be defined as Unknown if they don't exist for a given review. The built CSV is ordered by the following column headers: Organisation,Website,Year,Month,Day,Rating,Status,Location,Position,Title,Review,Pros,Cons. Note: If output_name matches an existing CSV file, new review data will be appended to that existing CSV file. 
 
