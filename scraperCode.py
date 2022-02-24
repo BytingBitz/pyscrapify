@@ -2,10 +2,15 @@ from bs4 import BeautifulSoup
 import urllib.request as lib
 from time import sleep
 from math import ceil
+from tqdm import tqdm
 import os.path
 import json
 import csv
 import re
+
+
+months = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"]
 
 
 def dictionary_build():
@@ -13,6 +18,8 @@ def dictionary_build():
         'organisation': [],
         'website': [],
         'year': [],
+        'month': [],
+        'day': [],
         'country': [],
         'rating': [],
         'status': [],
@@ -34,12 +41,11 @@ def grab_HTML(website, seek_url, start, country=None, attempts=None):
                                   headers={'User-Agent': 'Mozilla/5.0'})
             else:
                 req = lib.Request(f'{seek_url}?page=' + str(start),
-                    headers={'User-Agent': 'Mozilla/5.0'})
+                                  headers={'User-Agent': 'Mozilla/5.0'})
             webpage = lib.urlopen(req)
             return BeautifulSoup(webpage, 'html.parser')
         except:
             sleep(5)
-            print(f"Page grab failed, retrying - {attempts + 1}/15")
             continue
     print("Failed to grab HTML")
     exit(0)
@@ -65,8 +71,8 @@ def append_CSV(filename, dic, number_reviews):
     with open(f'{filename}.csv', 'a', newline='', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', lineterminator='\n')
         if not file_exists:
-            headers = ["Organisation", "Website", "Country", "year", "Rating",
-                      "Status", "Location", "Position", "Title", "Review", "Pros", "Cons"]
+            headers = ["Organisation", "Website", "Country", "Year", "Month", "Day", "Rating",
+                       "Status", "Location", "Position", "Title", "Review", "Pros", "Cons"]
             writer.writerow(headers)
         values = dic.values()
         length = len(dic['organisation'])
@@ -77,6 +83,8 @@ def append_CSV(filename, dic, number_reviews):
                 dic['website'][i],
                 dic['country'][i],
                 dic['year'][i],
+                dic['month'][i],
+                dic['day'][i],
                 dic['rating'][i],
                 dic['status'][i],
                 dic['location'][i],
@@ -135,7 +143,10 @@ def indeed_heading(soup, jump, dic):
         else:
             dic['status'].append("Former")
         dic['location'].append(split_data[1])
-        dic['year'].append(split_data[2][-4:])
+        time_data = split_data[2].split()
+        dic['year'].append(time_data[2])
+        dic['month'].append(time_data[1])
+        dic['day'].append(time_data[0])
     return dic
 
 
@@ -184,9 +195,8 @@ def indeed_scrape(firm, indeed_url, filename, indeed_country):
     number_reviews, number_pages = review_volume(
         big_soup, "Indeed", reviews_per_page)
     print(f"Found {number_reviews} reviews")
-    for page in range(number_pages):
+    for page in tqdm(range(number_pages)):
         sleep(0.5)
-        print(f"Page {page + 1} of {number_pages}")
         soup, jump = indeed_position(
             big_soup, page, indeed_url, indeed_country, reviews_per_page)
         dic = indeed_heading(soup, jump, dic)
@@ -237,7 +247,10 @@ def seek_body(soup, dic):
         'script', attrs={'type': 'application/ld+json'})
     json_data = json.loads(json_scripts[1].contents[0])
     for review in json_data['review']:
-        dic['year'].append(review['datePublished'][:4])
+        time_data = review['datePublished'].split("-")
+        dic['year'].append(time_data[0])
+        dic['month'].append(months[int(time_data[1])])
+        dic['day'].append(time_data[2])
         dic['position'].append(review['author']['jobTitle'])
         dic['rating'].append(review['reviewRating']['ratingValue'])
         dic['title'].append(review['reviewBody'])
@@ -276,9 +289,8 @@ def seek_scrape(firm, seek_url, filename):
         big_soup, "Seek", reviews_per_page)
     print(f"Found {number_reviews} reviews")
     optional_data, parent_class = seek_position(number_pages, seek_url)
-    for page in range(number_pages):
+    for page in tqdm(range(number_pages)):
         sleep(0.5)
-        print(f"Page {page + 1} of {number_pages}")
         soup = grab_HTML("Seek", seek_url, page + 1)
         dic = seek_header(soup, dic, parent_class, optional_data)
         dic = seek_body(soup, dic)
@@ -295,7 +307,6 @@ def execute_indeed(config, count: int, number_scrapes: int, name: str):
         indeed_country_list = [indeed_country_list]
     print(f"Organisation {count + 1} of {number_scrapes}")
     for indeed_country in indeed_country_list:
-        print(f"Scraping Indeed Reviews for {firm} in {indeed_country}")
         if indeed_url is not None and indeed_country is not None:
             indeed_scrape(firm, indeed_url, name, indeed_country)
         else:
