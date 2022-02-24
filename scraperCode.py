@@ -32,9 +32,9 @@ def dictionary_build():
     }
 
 
-def grab_HTML(website, seek_url, start, country=None, attempts=None):
+def grab_HTML(website, seek_url, start, country=None):
     ''' Returns: Selected webpage soup. '''
-    for attempts in range(15):
+    for _ in range(15):
         try:
             if website == "Indeed":
                 req = lib.Request(f'{seek_url}?start='+str(start)+'&fcountry='+country,
