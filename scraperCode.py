@@ -67,8 +67,10 @@ def data_validation(values, length, number_reviews):
 
 def append_CSV(filename, dic, number_reviews):
     ''' Returns: Built and named CSV file containing firm review data. '''
-    file_exists = os.path.isfile(f'{filename}.csv')
-    with open(f'{filename}.csv', 'a', newline='', encoding='utf-8') as csv_file:
+    if not filename.endswith(".csv"):
+        filename += ".csv"
+    file_exists = os.path.isfile(filename)
+    with open(filename, 'a', newline='', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', lineterminator='\n')
         if not file_exists:
             headers = ["Organisation", "Website", "Country", "Year", "Month", "Day", "Rating",

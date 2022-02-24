@@ -12,10 +12,14 @@ Data collected from Indeed.com & Seek.com for each organisation review:
 * Location: The specified location.
 * Status: The Current or Former employment status.
 * Year: The year in which the review was placed.
+* Month: The month in which the review was placed.
+* Day: The day on which the review was placed.
 * Title: The title of the user review.
-* Review: The text content of the user review.
+* Review: The text content of the user review (Indeed only).
+* Pros: The text content of position pros.
+* Cons: The text content of position cons.
 
-On Seek.com location and status are not always provided and will be defined as Unknown if they don't exist for a given review. The built CSV is ordered by the following column headers: Organisation,Website,Year,Rating,Status,Location,Position,Title,Review. Note: If output_name matches an existing CSV file, new review data will be appended to that existing CSV file. 
+On Seek.com location and status are not always provided and will be defined as Unknown if they don't exist for a given review. The built CSV is ordered by the following column headers: Organisation,Website,Year,Month,Day,Rating,Status,Location,Position,Title,Review,Pros,Cons. Note: If output_name matches an existing CSV file, new review data will be appended to that existing CSV file. 
 
 Creation Date: 27/06/2021
 
@@ -25,7 +29,7 @@ Creation Date: 27/06/2021
 
 Constants:
 * organisation: The desired organisation name to appear in the CSV file
-* output_name: Desired output CSV filename (excluding the .csv part)
+* output_name: Desired output CSV filename.
 ## Single Indeed.com organisation review scrape:
 
 * indeed_url: The correct url for the organisation reviews of a organisation on Indeed.com
