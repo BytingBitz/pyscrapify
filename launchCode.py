@@ -11,4 +11,4 @@ from scraperCode import indeed_scrape, seek_scrape, multi_scrape
 
 # Scrape multiple reviews from Indeed and/or Seek (see readme to set organisations.json):
 # websites: "Indeed" | "Seek" | "Both"
-multi_scrape("Both", "Reviews-Data")
+multi_scrape("Both", "QLD-Reviews-Data")
