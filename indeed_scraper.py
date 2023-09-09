@@ -7,9 +7,6 @@ from time import sleep
 import json
 from bs4 import BeautifulSoup
 
-# TOP_TEXT =  '''Sort by'''
-# BOTTOM_TEXT = '''Company Reviews published on our site are the views and opinions of their authors and do not represent the views and opinions of SEEK or its personnel. SEEK does not verify the truth or accuracy of any reviews and does not adopt or endorse any of the comments posted. SEEK posts reviews for what they are worth and for informational purposes only to assist candidates to find employment.'''
-
 class Organisations:
     ''' Purpose: Load scrape_config for scraping. '''
     def __init__(self, json_file_path):
@@ -40,18 +37,6 @@ def create_browser(debug: bool = False):
         options=options)
     driver.implicitly_wait(5)
     return driver
-
-# def slice_soup(page_html: str):
-#     ''' Returns: BS4 soup sliced to reviews. '''
-#     full_soup = BeautifulSoup(page_html, 'html.parser')
-#     try: # Cutting soup down to relevant HTML
-#         top_text_element = full_soup.find(string=lambda t: TOP_TEXT in t)
-#         bottom_text_element = full_soup.find(string=lambda t: BOTTOM_TEXT in t)
-#         full_str = str(full_soup)
-#         content_str = full_str[full_str.find(str(top_text_element)):full_str.find(str(bottom_text_element))]
-#         return BeautifulSoup(content_str, 'html.parser')
-#     except:
-#         pass
 
 def extract_blocks(page_html: str):
     ''' Returns: List of review data lists extracted from span text in HTML. '''
