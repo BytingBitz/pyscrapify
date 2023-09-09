@@ -9,12 +9,12 @@ class Log:
     def status(message: str):
         ''' Format: [-] message'''
         indicator = '[' + Fore.GREEN + '-' + Style.RESET_ALL + ']'
-        print(f'{indicator} {message}...')
+        print(f'{indicator} {message}')
     def alert(message: str):
         ''' Format: [!] message'''
         indicator = '[' + Fore.RED + '!' + Style.RESET_ALL + ']'
-        print(f'{indicator} {message}...')
+        print(f'{indicator} {message}')
     def info(message: str):
         ''' Formats: [i] message'''
         indicator = '[' + Fore.BLUE + 'i' + Style.RESET_ALL + ']'
-        print(f'{indicator} {message}...')
+        print(f'{indicator} {message}')
