@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# But do not ignore .gitignore (this file)
+!.gitignore
+
+# And do not ignore test.json
+!test.json

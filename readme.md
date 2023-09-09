@@ -2,6 +2,8 @@
 
 ***
 # About:
+
+# REWRITE IN PROGRESS, WILL ONLY SCRAPE SEEK
 ---
 This tool was built simply because I could not find a currently functional tool for pulling Indeed.com and Seek.com organisational review data. This project also represents my first dive into scraping data from websites and it was a very valuable learning opportunity.
 
