@@ -1,6 +1,8 @@
 ''' Created: 09/09/2023 '''
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
@@ -35,7 +37,7 @@ def create_browser(debug: bool = False):
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()), 
         options=options)
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(10)
     return driver
 
 def extract_blocks(page_html: str):
@@ -53,16 +55,38 @@ def extract_blocks(page_html: str):
         pass
         # Add something here...
 
+def next_page(driver: webdriver.Chrome):
+    ''' Returns: True or False if next page exists. '''
+    try:
+        # Try to find the "Next" button without tabindex="-1"
+        driver.find_element(By.XPATH, "//a[@aria-label='Next' and not(@tabindex='-1')]")
+        return True
+    except:
+        return False
+
+def wait_for_change(driver: webdriver.Chrome, page_html: str):
+    ''' Purpose: Checks page contents actually change, waits. '''
+    wait = WebDriverWait(driver, 30)
+    wait.until(lambda driver: driver.page_source != page_html)
+    sleep(2)
+
 def scrape_seek(driver: webdriver.Chrome, organisations: Organisations):
     ''' Purpose: Control Selenium to extract organisation reviews across pages. '''
+    total = 0
     for url in organisations.get_urls():
         driver.get(url)
-        sleep(10)
         while True:
             page_html = driver.page_source
             blocks = extract_blocks(page_html)
-            print(blocks)
-            sleep(1000)
+            total += len(blocks)
+            print(total)
+            if next_page(driver):
+                next_button = driver.find_element(By.XPATH, "//a[@aria-label='Next']")
+                next_button.click()
+                wait_for_change(driver, page_html)
+            else:
+                break
+            # Appears to be a review mismatch, error exists, title missing from data.
 
 def scrape_setup(scrape_file: str, debug: bool = False):
     ''' Purpose: Creates driver and data objects for scraping. '''
