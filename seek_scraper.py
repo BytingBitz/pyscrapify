@@ -59,8 +59,10 @@ def create_browser(header: bool = False, logging: bool = False) -> webdriver:
     ''' Returns: Created Selenium Chrome browser session. '''
     options = webdriver.ChromeOptions()
     if not header:
+        Log.info('Running Selenium driver without header...')
         options.add_argument('--headless')
     if not logging:
+        Log.info('Disabled Selenium driver logging...')
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()), 
@@ -190,5 +192,5 @@ def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bo
         quit()
 
 if __name__ == '__main__':
-    Log.info('Debug test, browser has header...')
-    scrape_launch('scrape_configs/test.json', selenium_header=True, data_strict=False)
+    Log.info('Debug test...')
+    scrape_launch('scrape_configs/test.json', selenium_header=True)
