@@ -177,7 +177,7 @@ def scrape_website(driver: WebDriver, config: ScrapeConfig):
             continue
 
 def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
-    ''' Purpose: Manages the scraping of all Seek websites from provided config file. '''
+    ''' Purpose: Manages the scraping of all pages from provided config file. '''
     try:
         config = ScrapeConfig(scrape_file, data_strict, selenium_header, selenium_logging)
         with BrowserManager(header=selenium_header, logging=selenium_logging) as driver:
