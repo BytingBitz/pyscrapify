@@ -179,7 +179,7 @@ def scrape_seek(driver: webdriver.Chrome, config_json: Config_JSON, data_strict:
             continue
 
 def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
-    ''' Purpose: Creates driver and data objects for scraping. '''
+    ''' Purpose: Manages the scraping of all Seek websites from provided config file. '''
     try:
         with managed_browser(header=selenium_header, logging=selenium_logging) as driver:
             config_json = Config_JSON(scrape_file)
@@ -190,7 +190,7 @@ def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bo
     except (FileNotFoundError, InvalidJsonFormat) as e:
         Log.alert(f'{e.args[0]}\nFailed to load {scrape_file}, aborting...')
     except UnexpectedData as e:
-        Log.trace(e.__traceback__)
+        Log.trace(e.__traceback__) # Consider joining and generalising with above errors
     except Exception as e:
         Log.alert(f'Unexpected error occurred...\n{e}')
         Log.trace(e.__traceback__)
