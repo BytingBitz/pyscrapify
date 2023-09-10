@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from utility import Log
 import re
+from contextlib import contextmanager
 import os
 
 URL_PATTERN = re.compile(r'https?://www\.seek\.com\.au/companies/.+/reviews')
@@ -31,6 +32,29 @@ class InvalidJsonFormat(Exception):
 
 class UnexpectedData(Exception):
     pass
+
+def create_browser(header: bool = False, logging: bool = False) -> webdriver:
+    ''' Returns: Created Selenium Chrome browser session. '''
+    options = webdriver.ChromeOptions()
+    if not header:
+        Log.info('Running Selenium driver without header...')
+        options.add_argument('--headless')
+    if not logging:
+        Log.info('Disabled Selenium driver logging...')
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()), 
+        options=options)
+    return driver
+
+@contextmanager
+def managed_browser(header: bool = False, logging: bool = False) -> webdriver:
+    driver = create_browser(header, logging)
+    try:
+        yield driver
+    finally:
+        Log.status('Ending Selenium driver...')
+        driver.quit()
 
 class Config_JSON:
     ''' Purpose: Load specified scrape_config contents. '''
@@ -54,20 +78,6 @@ class Config_JSON:
     def string(self) -> str:
         ''' Returns: String of organisation names and URLs. '''
         return '\n'.join([f'{org["name"]}: {org["url"]}' for org in self.orgs])
-
-def create_browser(header: bool = False, logging: bool = False) -> webdriver:
-    ''' Returns: Created Selenium Chrome browser session. '''
-    options = webdriver.ChromeOptions()
-    if not header:
-        Log.info('Running Selenium driver without header...')
-        options.add_argument('--headless')
-    if not logging:
-        Log.info('Disabled Selenium driver logging...')
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()), 
-        options=options)
-    return driver
 
 def extract_data(page_html: str, data_strict: bool) -> list:
     ''' Returns: List of lists of all reviews data scraped for current page.'''
@@ -170,26 +180,20 @@ def scrape_seek(driver: webdriver.Chrome, config_json: Config_JSON, data_strict:
 
 def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
     ''' Purpose: Creates driver and data objects for scraping. '''
-    driver = None
     try:
-        driver = create_browser(header=selenium_header, logging=selenium_logging)
-        config_json = Config_JSON(scrape_file)
-        Log.info(f'Loaded {scrape_file} contents:\n{config_json.string()}')
-        scrape_seek(driver, config_json, data_strict)
+        with managed_browser(header=selenium_header, logging=selenium_logging) as driver:
+            config_json = Config_JSON(scrape_file)
+            Log.info(f'Loaded {scrape_file} contents:\n{config_json.string()}')
+            scrape_seek(driver, config_json, data_strict)
     except KeyboardInterrupt:
         Log.warn('Keyboard interrupt, aborting...')
     except (FileNotFoundError, InvalidJsonFormat) as e:
         Log.alert(f'{e.args[0]}\nFailed to load {scrape_file}, aborting...')
-    except UnexpectedData:
+    except UnexpectedData as e:
         Log.trace(e.__traceback__)
     except Exception as e:
         Log.alert(f'Unexpected error occurred...\n{e}')
         Log.trace(e.__traceback__)
-    finally:
-        if driver:
-            Log.status('Ending Selenium driver...')
-            driver.quit()
-        quit()
 
 if __name__ == '__main__':
     Log.info('Debug test...')
