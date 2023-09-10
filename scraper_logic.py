@@ -5,14 +5,13 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
-import json
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from utility import Log, InvalidJsonFormat, UnexpectedData
-import os
-import re
+import json, os, re
 import importlib
 
+# NOTE: All website scrapers build off of BaseScraper.
 from scrapers.base_scraper import BaseScraper
 
 class GenericValidators:

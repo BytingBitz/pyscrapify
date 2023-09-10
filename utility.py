@@ -5,7 +5,7 @@ import traceback
 
 WEBDRIVER_TIMEOUT = 20
 
-# Modify Logging to take in error title and error body seperate. Initialise to only title or no logs.
+# TODO: Modify Logging to take in error title and error body seperate. Initialise to only title or no logs.
 
 class Log:
     ''' Purpose: Correctly format print messages given purpose. '''
