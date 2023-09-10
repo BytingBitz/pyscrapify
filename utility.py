@@ -33,3 +33,11 @@ class Log:
         ''' Formats: [!] Trace: trace on next line '''
         formatted_traceback = ''.join(traceback.format_tb(error_traceback))
         print(f'{Log.PREFIX_TRACE}\n{Fore.LIGHTBLACK_EX}{formatted_traceback}{Style.RESET_ALL}')
+
+class InvalidJsonFormat(Exception):
+    ''' Exception: scrape_configs JSON file was not valid. '''
+    pass
+
+class UnexpectedData(Exception):
+    ''' Exception: scraped data was not as expected. '''
+    pass

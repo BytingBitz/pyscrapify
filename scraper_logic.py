@@ -4,57 +4,79 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import json
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-from utility import Log
+from utility import Log, InvalidJsonFormat, UnexpectedData
 import re
-from contextlib import contextmanager
 import os
 
-URL_PATTERN = re.compile(r'https?://www\.seek\.com\.au/companies/.+/reviews')
-NAME_PATTERN = re.compile(r'^[a-zA-Z0-9\s\-.,()]+$')
-YEAR_PATTERN = re.compile(r"\d{4}")
-
 WEBDRIVER_TIMEOUT = 20
-DATA_START_OFFSET = 5
-DATA_LENGTH = 9
-DATA_YEAR_IDX = 1
-DATA_GOOD_TEXT = 'The good things'
-DATA_CHALLENGE_TEXT = 'The challenges'
-DATA_CHALLENGE_IDX = 7
+DATA_START_OFFSET = 5 # Seek specific
+DATA_LENGTH = 9 # Seek specific
+DATA_YEAR_IDX = 1 # Seek specific
+DATA_GOOD_TEXT = 'The good things' # Seek specific
+DATA_CHALLENGE_TEXT = 'The challenges' # Seek specific
+DATA_CHALLENGE_IDX = 7 # Seek specific
 
-class InvalidJsonFormat(Exception):
-    pass
+class SeekScraper:
+    ''' Purpose: Contains all Seek specific scraping and validation logic. '''
+    url_pattern = re.compile(r'https?://www\.seek\.com\.au/companies/.+/reviews')
+    name_pattern = re.compile(r'^[a-zA-Z0-9\s\-.,()]+$')
+    year_pattern = re.compile(r"\d{4}")
+    data_start_offset, data_length, data_year_idx, data_challenge_idx = 5, 9, 1, 7
+    data_good_text, data_challenge_text = 'The good things', 'The challenges'
+    @staticmethod
+    def validate_url(url: str):
+        ''' Purpose: Raises exception if invalid Seek URL. '''
+        if not SeekScraper.url_pattern.match(url):
+            raise InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
+    @staticmethod
+    def validate_name(name: str):
+        ''' Purpose: Raises exception if invalid organisation name. '''
+        if not SeekScraper.name_pattern.match(name):
+            raise InvalidJsonFormat(f'JSON contains invalid name format: {name}')
+    @staticmethod
+    def validate_data_bounds(idx: int, texts: list):
+        ''' Purpose: Raises exception if data appears to leave texts bounds. '''
+        start_idx = idx - SeekScraper.data_start_offset
+        end_idx = idx + SeekScraper.data_length - SeekScraper.data_start_offset
+        if not (start_idx >= 0 and end_idx < len(texts)):
+            raise UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')
+    @staticmethod
+    def validate_data_block(block: list):
+        if not SeekScraper.year_pattern.match((block[SeekScraper.data_year_idx].split()[1])):
+            raise UnexpectedData(f'Expected year at second block index:\n{block}')
+        if not block[SeekScraper.data_challenge_idx] == SeekScraper.data_challenge_text:
+            raise UnexpectedData(f'Expected challenge text at second last block index:\n{block}')
 
-class UnexpectedData(Exception):
-    pass
-
-def create_browser(header: bool = False, logging: bool = False) -> webdriver:
-    ''' Returns: Created Selenium Chrome browser session. '''
-    options = webdriver.ChromeOptions()
-    if not header:
-        Log.info('Running Selenium driver without header...')
-        options.add_argument('--headless')
-    if not logging:
-        Log.info('Disabled Selenium driver logging...')
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()), 
-        options=options)
-    return driver
-
-@contextmanager
-def managed_browser(header: bool = False, logging: bool = False) -> webdriver:
-    driver = create_browser(header, logging)
-    try:
-        yield driver
-    finally:
-        Log.status('Ending Selenium driver...')
-        driver.quit()
+class BrowserManager:
+    def __init__(self, header: bool = False, logging: bool = False):
+        self.header = header
+        self.logging = logging
+    def create_browser(self) -> webdriver:
+        ''' Returns: Created Selenium Chrome browser session. '''
+        options = webdriver.ChromeOptions()
+        if not self.header:
+            Log.info('Running Selenium driver without header...')
+            options.add_argument('--headless')
+        if not self.logging:
+            Log.info('Disabled Selenium driver logging...')
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()), 
+            options=options)
+        return driver
+    def __enter__(self):
+        self.driver = self.create_browser()
+        return self.driver
+    def __exit__(self, *_):
+        Log.info('Ending Selenium driver...')
+        self.driver.quit()
 
 class Config_JSON:
     ''' Purpose: Load specified scrape_config contents. '''
@@ -67,10 +89,8 @@ class Config_JSON:
             if 'orgs' not in data:
                 raise InvalidJsonFormat('JSON is missing the "orgs" key...')
             for name, url in data['orgs'].items():
-                if not URL_PATTERN.match(url):
-                    raise InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
-                if not NAME_PATTERN.match(name):
-                    raise InvalidJsonFormat(f'JSON contains invalid name format: {name}')
+                SeekScraper.validate_url(url)
+                SeekScraper.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
     def get_orgs(self) -> list:
         ''' Returns: List of organisation names and URLs. '''
@@ -82,22 +102,18 @@ class Config_JSON:
 def extract_data(page_html: str, data_strict: bool) -> list:
     ''' Returns: List of lists of all reviews data scraped for current page.'''
     soup = BeautifulSoup(page_html, 'html.parser')
-    texts = [element.get_text() for element in soup.find_all(['span', 'h3'])]
+    texts = [element.get_text() for element in soup.find_all(['span', 'h3'])] # Seek specific
     data = []
     # Finds 'The good things' in all texts then extracts from each index.
     indices = [i for i, x in enumerate(texts) if x == DATA_GOOD_TEXT]
     # Expect: ['position', 'month year', 'location', 'time in role, employee status', 'title', 'The good things', 'pros', 'The challenges', 'cons']
     for idx in indices:
         try:
-            start_idx = idx - DATA_START_OFFSET
-            end_idx = idx + DATA_LENGTH - DATA_START_OFFSET
-            if not (start_idx >= 0 and end_idx < len(texts)):
-                raise UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')
+            SeekScraper.validate_data_bounds(idx, texts)
+            start_idx = idx - SeekScraper.data_start_offset # remove
+            end_idx = idx + SeekScraper.data_length - SeekScraper.data_start_offset # remove
             block = texts[start_idx:end_idx]
-            if not YEAR_PATTERN.match((block[DATA_YEAR_IDX].split()[1])):
-                raise UnexpectedData(f'Expected year at second block index:\n{block}')
-            if not block[DATA_CHALLENGE_IDX + 1] == DATA_CHALLENGE_TEXT:
-                raise UnexpectedData(f'Expected challenge text at second last block index:\n{block}')
+            SeekScraper.validate_data_block(block)
             data.append(block)
         except UnexpectedData as e:
             Log.alert(f'Potential bad data!\n{e.args[0]}')
@@ -111,7 +127,7 @@ def extract_data(page_html: str, data_strict: bool) -> list:
 
 def next_page(next_button: webdriver.Remote._web_element_cls) -> bool:
     ''' Returns: Boolean True or False if next page is accessible. '''
-    return next_button.get_attribute("tabindex") != "-1"
+    return next_button.get_attribute("tabindex") != "-1" # Seek specific
 
 class wait_for_change(object):
     ''' Purpose: Verifies new reviews have loaded by span text changes. '''
@@ -123,8 +139,11 @@ class wait_for_change(object):
         self.old_texts = [elem.text for elem in self.driver.find_elements(*self.locator)]
         return self
     def content_has_changed(self, driver: webdriver.Chrome) -> bool:
-        current_texts = [elem.text for elem in driver.find_elements(*self.locator)]
-        return current_texts != self.old_texts
+        try:
+            current_texts = [elem.text for elem in driver.find_elements(*self.locator)]
+            return current_texts != self.old_texts
+        except StaleElementReferenceException:
+            return False
     def __exit__(self, *_):
         try:
             wait = WebDriverWait(self.driver, WEBDRIVER_TIMEOUT)
@@ -145,10 +164,10 @@ def scrape_data(driver: webdriver.Chrome, data_strict: bool) -> list:
     while True:
         page_html = driver.page_source
         review_data.extend(extract_data(page_html, data_strict))
-        next_button = driver.find_element(By.XPATH, "//a[@aria-label='Next']")
+        next_button = driver.find_element(By.XPATH, "//a[@aria-label='Next']") # Seek specific
         if next_page(next_button):
             pbar.update(1)
-            with wait_for_change(driver, data_strict, (By.TAG_NAME, 'h3')):
+            with wait_for_change(driver, data_strict, (By.TAG_NAME, 'h3')): # Seek specific
                 next_button.click()
         else:
             pbar.close()
@@ -164,9 +183,9 @@ def scrape_seek(driver: webdriver.Chrome, config_json: Config_JSON, data_strict:
         try:
             driver.get(url)
             wait = WebDriverWait(driver, WEBDRIVER_TIMEOUT)
-            wait.until(EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next']")))
+            wait.until(EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next']"))) # Seek specific
             review_data = scrape_data(driver, data_strict)
-            review_element = driver.find_element(By.XPATH, f"//a[contains(@href, '{url.split('/')[-2]}')]")
+            review_element = driver.find_element(By.XPATH, f"//a[contains(@href, '{url.split('/')[-2]}')]") # Seek specific
             total_reviews = int(review_element.text.split()[0])
             if len(review_data) != total_reviews:
                 Log.alert(f'Expected {total_reviews}, got {len(review_data)} for {name}, check internet...')
@@ -181,7 +200,7 @@ def scrape_seek(driver: webdriver.Chrome, config_json: Config_JSON, data_strict:
 def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
     ''' Purpose: Manages the scraping of all Seek websites from provided config file. '''
     try:
-        with managed_browser(header=selenium_header, logging=selenium_logging) as driver:
+        with BrowserManager(header=selenium_header, logging=selenium_logging) as driver:
             config_json = Config_JSON(scrape_file)
             Log.info(f'Loaded {scrape_file} contents:\n{config_json.string()}')
             scrape_seek(driver, config_json, data_strict)
