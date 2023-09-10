@@ -7,7 +7,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webdriver import WebDriver, WebElement
 from bs4 import BeautifulSoup
-from utility import InvalidJsonFormat, UnexpectedData, WEBDRIVER_TIMEOUT
+from utility import ScraperExceptions as SE, WEBDRIVER_TIMEOUT
 import re
 
 class Constants:
@@ -33,22 +33,22 @@ class Validators:
     def validate_url(url: str):
         ''' Purpose: Validates the given URL. '''
         if not Constants.url_pattern.match(url):
-            raise InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
+            raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
     @staticmethod
     def validate_data_bounds(data_bounds: dict[str, int], texts: list[list]):
         ''' Purpose: Validates if the data is within list bounds. '''
         if not (data_bounds['start_idx'] >= 0 and data_bounds['end_idx'] < len(texts)):
-            raise UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')
+            raise SE.UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')
     @staticmethod
     def validate_data_block(block: list):
         ''' Purpose: Validates the given data block. '''
         try:
             if not Constants.year_pattern.match((block[Constants.data_year_idx].split()[1])):
-                raise UnexpectedData(f'Expected year at second block index:\n{block}')
+                raise SE.UnexpectedData(f'Expected year at second block index:\n{block}')
             if not block[Constants.data_challenge_idx] == Constants.challenge_text:
-                raise UnexpectedData(f'Expected challenge text at second last block index:\n{block}')
+                raise SE.UnexpectedData(f'Expected challenge text at second last block index:\n{block}')
         except (IndexError, AttributeError):
-            raise UnexpectedData(f'Unexpected data format encountered:\n{block}')
+            raise SE.UnexpectedData(f'Unexpected data format encountered:\n{block}')
 
 class Parser:
     ''' Purpose: Stores all scraper logic for processing review data. '''

@@ -7,7 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-from utility import Log, InvalidJsonFormat, UnexpectedData
+from utility import Log, ScraperExceptions as SE
 import json, os, re
 import importlib
 
@@ -25,26 +25,26 @@ class GenericValidators:
     def validate_json_structure(data: json):
         ''' Purpose: Validates JSON file is structured as expected. '''
         if 'scraper' not in data:
-            raise InvalidJsonFormat('JSON is missing the "scraper" key...')
+            raise SE.InvalidJsonFormat('JSON is missing the "scraper" key...')
         if 'orgs' not in data:
-            raise InvalidJsonFormat('JSON is missing the "orgs" key...')
+            raise SE.InvalidJsonFormat('JSON is missing the "orgs" key...')
         scraper = data['scraper']
         if not isinstance(scraper, str):
-            raise InvalidJsonFormat('The JSON "scraper" value must be a string.')
+            raise SE.InvalidJsonFormat('The JSON "scraper" value must be a string.')
         GenericValidators.validate_file_exists(f'scrapers/{scraper}.py')
         if not isinstance(data['orgs'], dict):
-            raise InvalidJsonFormat('The JSON "orgs" value must be a dictionary.')
+            raise SE.InvalidJsonFormat('The JSON "orgs" value must be a dictionary.')
     @staticmethod
     def validate_name(name: str):
         ''' Purpose: Validates the given name. '''
         name_pattern = re.compile(r'^[a-zA-Z0-9\s\-.,()]+$')
         if not name_pattern.match(name):
-            raise InvalidJsonFormat(f'JSON contains invalid name format: {name}')
+            raise SE.InvalidJsonFormat(f'JSON contains invalid name format: {name}')
     @staticmethod
     def validate_review_count(actual_reviews: int, expected_reviews: int):
         ''' Purpose: Validates if number scraped reviews matches expected number. '''
         if actual_reviews != expected_reviews:
-            raise UnexpectedData(f'Expected {expected_reviews}, got {actual_reviews}...')
+            raise SE.UnexpectedData(f'Expected {expected_reviews}, got {actual_reviews}...')
 
 def get_scraper(name: str) -> BaseScraper:
     ''' Dynamically overrides BaseScraper with selected scraper. '''
@@ -104,29 +104,6 @@ class BrowserManager:
         Log.info('Ending Selenium driver...')
         self.driver.quit()
 
-def handle_non_critical(func, config: ScrapeConfig, *args, **kwargs):
-    ''' Purpose: Handles non-critical functions given data_strict setting. '''
-    try:
-        return func(*args, **kwargs)
-    except Exception as e:
-        Log.alert(f'Failed to get value!\n{e}')
-        if config.data_strict:
-            raise UnexpectedData('Settings on data_strict True, aborting...')
-        else:
-            Log.warn(f'Settings on data_strict False, proceeding...')
-            return None
-
-def handle_bad_data(func, config: ScrapeConfig, *args, **kwargs):
-    ''' Purpose: Handles bad data given data_strict setting. '''
-    try:
-        func(*args, **kwargs)
-    except UnexpectedData as e:
-        Log.alert(f'Potential bad data!\n{e.args[0]}')
-        if config.data_strict:
-            raise UnexpectedData('Settings on data_strict True, aborting...')
-        else:
-            Log.warn(f'Settings on data_strict False, proceeding...')
-
 def extract_data(page_html: str, config: ScrapeConfig) -> list[list]:
     ''' Returns: List of lists of all reviews data scraped for current page.'''
     soup = BeautifulSoup(page_html, 'html.parser')
@@ -135,9 +112,9 @@ def extract_data(page_html: str, config: ScrapeConfig) -> list[list]:
     data_lists = []
     for idx in indices:
         data_bounds = config.Scraper.Parser.extract_data_bounds(idx)
-        handle_bad_data(config.Scraper.Validators.validate_data_bounds, config, data_bounds, texts)
+        SE.handle_bad_data(config.Scraper.Validators.validate_data_bounds, config, data_bounds, texts)
         data_block = config.Scraper.Parser.extract_data_block(texts, data_bounds)
-        handle_bad_data(config.Scraper.Validators.validate_data_block, config, data_block)
+        SE.handle_bad_data(config.Scraper.Validators.validate_data_block, config, data_block)
         data_lists.append(data_block)
     return data_lists
 
@@ -152,7 +129,7 @@ def scrape_data(driver: WebDriver, config: ScrapeConfig) -> list[list]:
         if config.Scraper.Navigator.check_next_page(next_button):
             pbar.update(1)
             next_button.click()
-            handle_bad_data(config.Scraper.Navigator.wait_for_next_page, config, driver)
+            SE.handle_bad_data(config.Scraper.Navigator.wait_for_next_page, config, driver)
         else:
             pbar.close()
             break
@@ -168,8 +145,8 @@ def scrape_website(driver: WebDriver, config: ScrapeConfig):
             driver.get(url)
             config.Scraper.Navigator.wait_for_url(driver)
             review_data = scrape_data(driver, config)
-            total_reviews = handle_non_critical(config.Scraper.Parser.extract_total_reviews, config, driver)
-            handle_bad_data(GenericValidators.validate_review_count, config, len(review_data), total_reviews)
+            total_reviews = SE.handle_non_critical(config.Scraper.Parser.extract_total_reviews, config, driver)
+            SE.handle_bad_data(GenericValidators.validate_review_count, config, len(review_data), total_reviews)
             # TODO: add code to save data, use Failed lists
         except TimeoutException:
             Log.alert(f'Failed to get {name}, check URL or internet...\n{url}')
@@ -188,7 +165,7 @@ def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bo
         Log.alert('Keyboard interrupt, aborting...')
     except ConnectionError:
         Log.alert('Internet connection failed, check internet and try again...')
-    except (FileNotFoundError, InvalidJsonFormat, UnexpectedData, NotImplementedError) as e:
+    except (FileNotFoundError, SE.InvalidJsonFormat, SE.UnexpectedData, NotImplementedError) as e:
         Log.alert(f'{e.args[0]}, {config.Scraper} scraper')
         Log.trace(e.__traceback__)
     except Exception as e:

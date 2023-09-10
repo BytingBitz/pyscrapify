@@ -1,5 +1,6 @@
 ''' Creation Date: 09/11/2022 '''
 
+from scraper_logic import ScrapeConfig
 from colorama import Fore, Style
 import traceback
 
@@ -41,10 +42,34 @@ class Log:
         formatted_traceback = ''.join(traceback.format_tb(error_traceback))
         print(f'{Log.PREFIX_TRACE}\n{Fore.LIGHTBLACK_EX}{formatted_traceback}{Style.RESET_ALL}')
 
-class InvalidJsonFormat(Exception):
-    ''' Exception: scrape_configs JSON file was not valid. '''
-    pass
-
-class UnexpectedData(Exception):
-    ''' Exception: scraped data was not as expected. '''
-    pass
+class ScraperExceptions:
+    ''' Purpose: Stores all custom exception logic for project. '''
+    class InvalidJsonFormat(Exception):
+        ''' Exception: JSON file was not valid. '''
+        pass
+    class UnexpectedData(Exception):
+        ''' Exception: scraped data was not as expected. '''
+        pass
+    def handle_non_critical(func, config: ScrapeConfig, *args, **kwargs):
+        ''' Purpose: Handles non-critical functions given config.data_strict setting. 
+            Will allow a wrapped function to fail and return none if not strict. '''
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            Log.alert(f'Failed to get value!\n{e}')
+            if config.data_strict:
+                raise ScraperExceptions.UnexpectedData('Settings on data_strict True, aborting...')
+            else:
+                Log.warn(f'Settings on data_strict False, proceeding...')
+                return None
+    def handle_bad_data(func, config: ScrapeConfig, *args, **kwargs):
+        ''' Purpose: Handles bad data given config.data_strict setting. Will
+            allow a wrapped function to fail checks and continue if not strict.'''
+        try:
+            func(*args, **kwargs)
+        except ScraperExceptions.UnexpectedData as e:
+            Log.alert(f'Potential bad data!\n{e.args[0]}')
+            if config.data_strict:
+                raise ScraperExceptions.UnexpectedData('Settings on data_strict True, aborting...')
+            else:
+                Log.warn(f'Settings on data_strict False, proceeding...')
