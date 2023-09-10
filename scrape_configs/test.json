@@ -1,4 +1,5 @@
 {
+    "scraper": "seek",
     "orgs": {
         "Target Australia": "https://www.seek.com.au/companies/target-432304/reviews"
     }
