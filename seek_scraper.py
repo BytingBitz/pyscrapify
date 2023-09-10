@@ -65,7 +65,6 @@ def create_browser(header: bool = False, logging: bool = False) -> webdriver:
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()), 
         options=options)
-    driver.implicitly_wait(10)
     return driver
 
 def extract_data(page_html: str, data_strict: bool) -> list:
@@ -85,7 +84,7 @@ def extract_data(page_html: str, data_strict: bool) -> list:
             block = texts[start_idx:end_idx]
             if not YEAR_PATTERN.match((block[DATA_YEAR_IDX].split()[1])):
                 raise UnexpectedData(f'Expected year at second block index:\n{block}')
-            if not block[DATA_CHALLENGE_IDX] == DATA_CHALLENGE_TEXT:
+            if not block[DATA_CHALLENGE_IDX + 1] == DATA_CHALLENGE_TEXT:
                 raise UnexpectedData(f'Expected challenge text at second last block index:\n{block}')
             data.append(block)
         except UnexpectedData as e:
@@ -95,7 +94,7 @@ def extract_data(page_html: str, data_strict: bool) -> list:
                 raise UnexpectedData
             else:
                 Log.warn(f'Settings on data_strict False, proceeding...')
-                continue
+                pass
     return data
 
 def next_page(next_button: webdriver.Remote._web_element_cls) -> bool:
@@ -119,7 +118,7 @@ class wait_for_change(object):
             wait = WebDriverWait(self.driver, WEBDRIVER_TIMEOUT)
             wait.until(lambda driver: self.content_has_changed(driver))
         except TimeoutException as e:
-            Log.alert('Potential bad data!\nPage changed but review content did not...')
+            Log.alert(f'Potential bad data!\nPage changed but review content did not:\n{e}')
             if self.data_strict:
                 Log.warn(f'Settings on data_strict True, aborting...')
                 raise UnexpectedData
@@ -186,10 +185,10 @@ def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bo
         Log.trace(e.__traceback__)
     finally:
         if driver:
-            Log.status('Killing Selenium driver...')
+            Log.status('Ending Selenium driver...')
             driver.quit()
         quit()
 
 if __name__ == '__main__':
     Log.info('Debug test, browser has header...')
-    scrape_launch('scrape_configs/test.json', selenium_header=True)
+    scrape_launch('scrape_configs/test.json', selenium_header=True, data_strict=False)
