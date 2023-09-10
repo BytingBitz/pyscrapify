@@ -23,36 +23,88 @@ DATA_GOOD_TEXT = 'The good things' # Seek specific
 DATA_CHALLENGE_TEXT = 'The challenges' # Seek specific
 DATA_CHALLENGE_IDX = 7 # Seek specific
 
-class SeekScraper:
-    ''' Purpose: Contains all Seek specific scraping and validation logic. '''
+class SeekConstants:
+    ''' Purpose: Stores commonly used Seek specific constants. '''
     url_pattern = re.compile(r'https?://www\.seek\.com\.au/companies/.+/reviews')
     name_pattern = re.compile(r'^[a-zA-Z0-9\s\-.,()]+$')
     year_pattern = re.compile(r"\d{4}")
     data_start_offset, data_length, data_year_idx, data_challenge_idx = 5, 9, 1, 7
     data_good_text, data_challenge_text = 'The good things', 'The challenges'
+
+class SeekValidators:
+    ''' Purpose: Contains all Seek specific validation logic. '''
     @staticmethod
     def validate_url(url: str):
         ''' Purpose: Raises exception if invalid Seek URL. '''
-        if not SeekScraper.url_pattern.match(url):
+        if not SeekConstants.url_pattern.match(url):
             raise InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
     @staticmethod
     def validate_name(name: str):
         ''' Purpose: Raises exception if invalid organisation name. '''
-        if not SeekScraper.name_pattern.match(name):
+        if not SeekConstants.name_pattern.match(name):
             raise InvalidJsonFormat(f'JSON contains invalid name format: {name}')
     @staticmethod
-    def validate_data_bounds(idx: int, texts: list):
+    def validate_data_bounds(data_bounds: dict, texts: list):
         ''' Purpose: Raises exception if data appears to leave texts bounds. '''
-        start_idx = idx - SeekScraper.data_start_offset
-        end_idx = idx + SeekScraper.data_length - SeekScraper.data_start_offset
-        if not (start_idx >= 0 and end_idx < len(texts)):
+        if not (data_bounds['start_idx'] >= 0 and data_bounds['end_idx'] < len(texts)):
             raise UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')
     @staticmethod
     def validate_data_block(block: list):
-        if not SeekScraper.year_pattern.match((block[SeekScraper.data_year_idx].split()[1])):
+        if not SeekConstants.year_pattern.match((block[SeekConstants.data_year_idx].split()[1])):
             raise UnexpectedData(f'Expected year at second block index:\n{block}')
-        if not block[SeekScraper.data_challenge_idx] == SeekScraper.data_challenge_text:
+        if not block[SeekConstants.data_challenge_idx] == SeekConstants.data_challenge_text:
             raise UnexpectedData(f'Expected challenge text at second last block index:\n{block}')
+
+class SeekParser:
+    ''' Purpose: Stores all logic for processing Seek review data. '''
+    @staticmethod
+    def extract_page_text(soup: BeautifulSoup) -> list:
+        ''' Returns: Relevant review element text extracted from page soup. '''
+        return [element.get_text() for element in soup.find_all(['span', 'h3'])]
+    @staticmethod
+    def extract_data_indices(texts: list):
+        ''' Returns: List of indices of relevant review data in texts. '''
+        return [i for i, x in enumerate(texts) if x == DATA_GOOD_TEXT]
+    @staticmethod
+    def extract_data_bounds(idx: int) -> dict:
+        ''' Returns: Dict of start and end indexs for all relevant review data. '''
+        start_idx = idx - SeekConstants.data_start_offset
+        end_idx = idx + SeekConstants.data_length - SeekConstants.data_start_offset
+        return {"start_idx": start_idx, "end_idx": end_idx}
+    @staticmethod
+    def extract_data_block(texts: list, data_bounds: dict):
+        ''' Returns: List block of review data from full list of text. '''
+        return texts[data_bounds['start_idx']:data_bounds['end_idx']]
+
+class SeekNavigator:
+    ''' Purposes: Stores all logic for navigating and loading Seek webpages. '''
+    def grab_next_button(driver: webdriver.Chrome):
+        ''' Returns: Next review page button element. '''
+        return driver.find_element(By.XPATH, '//a[@aria-label="Next"]')
+    def check_next_page(next_button: webdriver.Remote._web_element_cls) -> bool:
+        ''' Returns: Boolean True or False if there is a next review page. '''
+        return next_button.get_attribute("tabindex") != "-1" # Seek specific
+
+class Config_JSON:
+    ''' Purpose: Load specified scrape_config contents. '''
+    def __init__(self, json_file_path):
+        self.orgs = []
+        if not os.path.exists(json_file_path):
+            raise FileNotFoundError(f'{json_file_path} does not exist.')
+        with open(json_file_path, 'r') as file:
+            data = json.load(file)
+            if 'orgs' not in data:
+                raise InvalidJsonFormat('JSON is missing the "orgs" key...')
+            for name, url in data['orgs'].items():
+                SeekValidators.validate_url(url)
+                SeekValidators.validate_name(name)
+                self.orgs.append({'name': name, 'url': url})
+    def get_orgs(self) -> list:
+        ''' Returns: List of organisation names and URLs. '''
+        return [(org['name'], org['url']) for org in self.orgs]
+    def string(self) -> str:
+        ''' Returns: String of organisation names and URLs. '''
+        return '\n'.join([f'{org["name"]}: {org["url"]}' for org in self.orgs])
 
 class BrowserManager:
     def __init__(self, header: bool = False, logging: bool = False):
@@ -78,43 +130,19 @@ class BrowserManager:
         Log.info('Ending Selenium driver...')
         self.driver.quit()
 
-class Config_JSON:
-    ''' Purpose: Load specified scrape_config contents. '''
-    def __init__(self, json_file_path):
-        self.orgs = []
-        if not os.path.exists(json_file_path):
-            raise FileNotFoundError(f'{json_file_path} does not exist.')
-        with open(json_file_path, 'r') as file:
-            data = json.load(file)
-            if 'orgs' not in data:
-                raise InvalidJsonFormat('JSON is missing the "orgs" key...')
-            for name, url in data['orgs'].items():
-                SeekScraper.validate_url(url)
-                SeekScraper.validate_name(name)
-                self.orgs.append({'name': name, 'url': url})
-    def get_orgs(self) -> list:
-        ''' Returns: List of organisation names and URLs. '''
-        return [(org['name'], org['url']) for org in self.orgs]
-    def string(self) -> str:
-        ''' Returns: String of organisation names and URLs. '''
-        return '\n'.join([f'{org["name"]}: {org["url"]}' for org in self.orgs])
-
 def extract_data(page_html: str, data_strict: bool) -> list:
     ''' Returns: List of lists of all reviews data scraped for current page.'''
     soup = BeautifulSoup(page_html, 'html.parser')
-    texts = [element.get_text() for element in soup.find_all(['span', 'h3'])] # Seek specific
-    data = []
-    # Finds 'The good things' in all texts then extracts from each index.
-    indices = [i for i, x in enumerate(texts) if x == DATA_GOOD_TEXT]
-    # Expect: ['position', 'month year', 'location', 'time in role, employee status', 'title', 'The good things', 'pros', 'The challenges', 'cons']
+    texts = SeekParser.extract_page_text(soup)
+    indices = SeekParser.extract_data_indices(texts)
+    data_list = []
     for idx in indices:
         try:
-            SeekScraper.validate_data_bounds(idx, texts)
-            start_idx = idx - SeekScraper.data_start_offset # remove
-            end_idx = idx + SeekScraper.data_length - SeekScraper.data_start_offset # remove
-            block = texts[start_idx:end_idx]
-            SeekScraper.validate_data_block(block)
-            data.append(block)
+            data_bounds = SeekParser.extract_data_bounds(idx)
+            SeekValidators.validate_data_bounds(data_bounds, texts)
+            data_block = SeekParser.extract_data_block(texts, data_bounds)
+            SeekValidators.validate_data_block(data_block)
+            data_list.append(data_block)
         except UnexpectedData as e:
             Log.alert(f'Potential bad data!\n{e.args[0]}')
             if data_strict:
@@ -123,11 +151,7 @@ def extract_data(page_html: str, data_strict: bool) -> list:
             else:
                 Log.warn(f'Settings on data_strict False, proceeding...')
                 pass
-    return data
-
-def next_page(next_button: webdriver.Remote._web_element_cls) -> bool:
-    ''' Returns: Boolean True or False if next page is accessible. '''
-    return next_button.get_attribute("tabindex") != "-1" # Seek specific
+    return data_list
 
 class wait_for_change(object):
     ''' Purpose: Verifies new reviews have loaded by span text changes. '''
@@ -158,14 +182,14 @@ class wait_for_change(object):
                 pass
 
 def scrape_data(driver: webdriver.Chrome, data_strict: bool) -> list:
-    ''' Returns: List of lists of all reviews data scraped for current URL. '''
+    ''' Returns: List of lists of all reviews data blocks scraped for current URL. '''
     pbar = tqdm(total=0)
     review_data = []
     while True:
         page_html = driver.page_source
         review_data.extend(extract_data(page_html, data_strict))
-        next_button = driver.find_element(By.XPATH, "//a[@aria-label='Next']") # Seek specific
-        if next_page(next_button):
+        next_button = SeekNavigator.grab_next_button(driver)
+        if SeekNavigator.check_next_page(next_button):
             pbar.update(1)
             with wait_for_change(driver, data_strict, (By.TAG_NAME, 'h3')): # Seek specific
                 next_button.click()
