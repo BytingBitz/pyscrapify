@@ -30,6 +30,6 @@ class Log:
         print(f'{Log.PREFIX_INFO} {Fore.LIGHTBLACK_EX}{message}{Style.RESET_ALL}')
     @staticmethod
     def trace(error_traceback):
-        ''' Formats: [!] trace '''
+        ''' Formats: [!] Trace: trace on next line '''
         formatted_traceback = ''.join(traceback.format_tb(error_traceback))
         print(f'{Log.PREFIX_TRACE}\n{Fore.LIGHTBLACK_EX}{formatted_traceback}{Style.RESET_ALL}')
