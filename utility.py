@@ -64,7 +64,7 @@ class ScraperExceptions:
                 return None
     def handle_bad_data(func, config: ScrapeConfig, *args, **kwargs):
         ''' Purpose: Handles bad data given config.data_strict setting. Will
-            allow a wrapped function to fail checks and continue if not strict.'''
+            allow a wrapped function to not validate and continue if not strict.'''
         try:
             func(*args, **kwargs)
         except ScraperExceptions.UnexpectedData as e:
