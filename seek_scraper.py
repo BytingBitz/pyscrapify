@@ -119,8 +119,8 @@ class wait_for_change(object):
         try:
             wait = WebDriverWait(self.driver, WEBDRIVER_TIMEOUT)
             wait.until(lambda driver: self.content_has_changed(driver))
-        except TimeoutException as e:
-            Log.alert(f'Potential bad data!\nPage changed but review content did not:\n{e}')
+        except TimeoutException:
+            Log.alert(f'Potential bad data!\nPage changed but review content did not...')
             if self.data_strict:
                 Log.warn(f'Settings on data_strict True, aborting...')
                 raise UnexpectedData
