@@ -1,6 +1,6 @@
 ''' Created: 11/09/2023 '''
 
-from utilities.logger import Log
+from utilities.logger_handler import Log
 
 class ScraperExceptions:
     ''' Purpose: Stores all custom exception logic for project. '''
@@ -8,7 +8,10 @@ class ScraperExceptions:
         ''' Exception: JSON file was not valid. '''
         pass
     class UnexpectedData(Exception):
-        ''' Exception: scraped data was not as expected. '''
+        ''' Exception: Scraped data was not as Scraper class expected. '''
+        pass
+    class BadScraper(Exception):
+        ''' Exception: Dynamic scraper function returned invalid type. '''
         pass
     def handle_non_critical(func, data_strict: bool, *args, **kwargs):
         ''' Purpose: Handles non-critical functions given config.data_strict setting. 

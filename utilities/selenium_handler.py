@@ -7,7 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
 
 # Internal Dependencies
-from logger import Log
+from utilities.logger_handler import Log
 
 class BrowserManager:
     def __init__(self, header: bool = False, logging: bool = False):

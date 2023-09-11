@@ -9,12 +9,12 @@ from typing import List
 
 # Internal Dependencies
 from scrapers.BaseScraper import GenericValidators
-from utilities.exception_handlers import ScraperExceptions as SE
+from utilities.exception_handler import ScraperExceptions as SE
 from utilities.selenium_handler import BrowserManager
-from utilities.load_config import ScrapeConfig
-from utilities.logger import Log
+from utilities.config_handler import ScrapeConfig
+from utilities.logger_handler import Log
 
-def extract_data(page_html: str, config: ScrapeConfig) -> List[List]:
+def extract_data(page_html: str, config: ScrapeConfig) -> List[List[str]]:
     ''' Returns: List of lists of all reviews data scraped for current page.'''
     soup = BeautifulSoup(page_html, 'html.parser')
     texts = config.scraper.Parsers.extract_page_text(soup)
@@ -28,7 +28,7 @@ def extract_data(page_html: str, config: ScrapeConfig) -> List[List]:
         data_lists.append(data_block)
     return data_lists
 
-def scrape_data(driver: WebDriver, config: ScrapeConfig) -> List[List]:
+def scrape_data(driver: WebDriver, config: ScrapeConfig) -> List[List[str]]:
     ''' Returns: List of lists of all reviews data blocks scraped for current URL. '''
     pbar = tqdm(total=0)
     review_data = []
@@ -71,12 +71,12 @@ def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bo
             Log.info(f'Loaded {scrape_file} contents:\n{config.string()}')
             scrape_website(driver, config)
         Log.status('Scraping executed successfully')
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: # TODO: Fix
         Log.alert('Keyboard interrupt, aborting...')
     except ConnectionError:
         Log.alert('Internet connection failed, check internet and try again...')
-    except (FileNotFoundError, SE.InvalidJsonFormat, SE.UnexpectedData, NotImplementedError) as e:
-        Log.alert(f'{e.args[0]}, {config.scraper} scraper')
+    except (FileNotFoundError, SE.InvalidJsonFormat, SE.UnexpectedData, SE.BadScraper) as e:
+        Log.alert(f'{e.args[0]}\n{config.scraper} scraper')
         Log.trace(e.__traceback__)
     except Exception as e:
         Log.error(f'Unexpected error, {config.scraper}, if persists open issue...\n{e}')
