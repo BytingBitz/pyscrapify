@@ -23,7 +23,7 @@ class BaseScraper:
                 raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
         @staticmethod
         @abstractmethod
-        def validate_data_block(block: list):
+        def validate_data_block(block: List):
             ''' Purpose: Validates the given data block. '''
 
     class Parsers(ABC):
@@ -84,7 +84,7 @@ class GenericValidators:
         if not name_pattern.match(name):
             raise SE.InvalidJsonFormat(f'JSON contains invalid name format: {name}')
     @staticmethod
-    def validate_data_bounds(data_bounds: dict[str, int], texts: list[list]):
+    def validate_data_bounds(data_bounds: Dict[str, int], texts: List[List]):
         ''' Purpose: Validates if the data is within list bounds. '''
         if not (data_bounds['start_idx'] >= 0 and data_bounds['end_idx'] < len(texts)):
             raise SE.UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')

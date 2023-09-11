@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webdriver import WebDriver, WebElement
 from bs4 import BeautifulSoup
 import re
+from typing import List, Dict
 
 # Internal Dependencies
 from utilities.handle_exceptions import ScraperExceptions as SE
@@ -22,7 +23,7 @@ class Seek(BaseScraper):
         ''' Purpose: Contains all scraper specific validation logic. '''
         url_pattern = r'https?://www\.seek\.com\.au/companies/.+/reviews'
         @staticmethod
-        def validate_data_block(block: list):
+        def validate_data_block(block: List):
             try:
                 # Verify that URL and year meet expected formats.
                 year_pattern = re.compile(r"\d{4}")
@@ -48,17 +49,17 @@ class Seek(BaseScraper):
             total_str = total_element.text
             return int(total_str.strip())
         @staticmethod
-        def extract_page_text(soup: BeautifulSoup) -> list[str]:
+        def extract_page_text(soup: BeautifulSoup) -> List[str]:
             ''' Returns: List of review element text extracted from page soup. '''
             return [element.get_text() for element in soup.find_all(['span', 'h3'])]
         @staticmethod
-        def extract_data_indices(texts: list[list]) -> list[int]:
+        def extract_data_indices(texts: List[List]) -> List[int]:
             ''' Returns: List of indices of relevant review data blocks in list. '''
             # Expected good text strings in review data block.
             good_text = 'The good things'
             return [i for i, x in enumerate(texts) if x == good_text]
         @staticmethod
-        def extract_data_bounds(idx: int) -> dict[str, int]:
+        def extract_data_bounds(idx: int) -> Dict[str, int]:
             ''' Returns: Dict of start and end indexs for relevant review data in list. '''
             # Distance of 'The good things' text index from start of data block.
             data_start_offset =  5
@@ -68,7 +69,7 @@ class Seek(BaseScraper):
             end_idx = idx + data_length - data_start_offset
             return {"start_idx": start_idx, "end_idx": end_idx}
         @staticmethod
-        def extract_data_block(texts: list[list], data_bounds: dict[str, int]) -> list[str]:
+        def extract_data_block(texts: List[List], data_bounds: Dict[str, int]) -> List[str]:
             ''' Returns: List block of review data from full list of text. '''
             return texts[data_bounds['start_idx']:data_bounds['end_idx']]
 

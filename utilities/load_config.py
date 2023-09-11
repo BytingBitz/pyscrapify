@@ -4,6 +4,7 @@
 
 # External Dependencies
 import json
+from typing import List
 
 # Internal Dependencies
 from scrapers.BaseScraper import BaseScraper, GenericValidators
@@ -27,7 +28,7 @@ class ScrapeConfig:
                 self.scraper.Validators.validate_url(url)
                 GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
-    def get_orgs(self) -> list:
+    def get_orgs(self) -> List:
         ''' Returns: List of organisation names and URLs. '''
         return [(org['name'], org['url']) for org in self.orgs]
     def string(self) -> str:

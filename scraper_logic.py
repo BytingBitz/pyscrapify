@@ -8,6 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+from typing import List
 
 # Internal Dependencies
 from scrapers.BaseScraper import GenericValidators
@@ -39,7 +40,7 @@ class BrowserManager:
         Log.info('Ending Selenium driver...')
         self.driver.quit()
 
-def extract_data(page_html: str, config: ScrapeConfig) -> list[list]:
+def extract_data(page_html: str, config: ScrapeConfig) -> List[List]:
     ''' Returns: List of lists of all reviews data scraped for current page.'''
     soup = BeautifulSoup(page_html, 'html.parser')
     texts = config.scraper.Parsers.extract_page_text(soup)
@@ -53,7 +54,7 @@ def extract_data(page_html: str, config: ScrapeConfig) -> list[list]:
         data_lists.append(data_block)
     return data_lists
 
-def scrape_data(driver: WebDriver, config: ScrapeConfig) -> list[list]:
+def scrape_data(driver: WebDriver, config: ScrapeConfig) -> List[List]:
     ''' Returns: List of lists of all reviews data blocks scraped for current URL. '''
     pbar = tqdm(total=0)
     review_data = []
