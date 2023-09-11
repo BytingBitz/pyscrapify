@@ -12,7 +12,7 @@ import re
 from typing import List, Dict
 
 # Internal Dependencies
-from utilities.handle_exceptions import ScraperExceptions as SE
+from utilities.exception_handlers import ScraperExceptions as SE
 from scrapers.BaseScraper import BaseScraper
 
 WEBDRIVER_TIMEOUT = 20

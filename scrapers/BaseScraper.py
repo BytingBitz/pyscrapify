@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import List, Dict
 
 # Internal Dependencies
-from utilities.handle_exceptions import ScraperExceptions as SE
+from utilities.exception_handlers import ScraperExceptions as SE
 
 class BaseScraper:
     
@@ -21,7 +21,6 @@ class BaseScraper:
                 raise NotImplementedError('URL pattern not set for this scraper.')
             if not re.compile(cls.url_pattern).match(url):
                 raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
-        @staticmethod
         @abstractmethod
         def validate_data_block(block: List):
             ''' Purpose: Validates the given data block. '''
