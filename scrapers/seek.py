@@ -1,5 +1,6 @@
 ''' Created: 10/09/2023 '''
 
+# External Dependencies
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -7,13 +8,16 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webdriver import WebDriver, WebElement
 from bs4 import BeautifulSoup
-from utility import ScraperExceptions as SE, WEBDRIVER_TIMEOUT
 import re
+
+# Internal Dependencies
+from utilities.handle_exceptions import ScraperExceptions as SE
+
+WEBDRIVER_TIMEOUT = 20
 
 class Constants:
     ''' Purpose: Stores commonly used scraper specific constants. '''
     # Verify that URL and year meet expected formats.
-    url_pattern = re.compile(r'https?://www\.seek\.com\.au/companies/.+/reviews')
     year_pattern = re.compile(r"\d{4}")
     # Expected challenge/good text strings in review data block.
     good_text = 'The good things'
@@ -28,17 +32,8 @@ class Constants:
     data_length = 9 
 
 class Validators:
-    ''' Purpose: Contains all scraper validation logic. '''
-    @staticmethod
-    def validate_url(url: str):
-        ''' Purpose: Validates the given URL. '''
-        if not Constants.url_pattern.match(url):
-            raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
-    @staticmethod
-    def validate_data_bounds(data_bounds: dict[str, int], texts: list[list]):
-        ''' Purpose: Validates if the data is within list bounds. '''
-        if not (data_bounds['start_idx'] >= 0 and data_bounds['end_idx'] < len(texts)):
-            raise SE.UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')
+    ''' Purpose: Contains all scraper specific validation logic. '''
+    url_pattern = r'https?://www\.seek\.com\.au/companies/.+/reviews'
     @staticmethod
     def validate_data_block(block: list):
         ''' Purpose: Validates the given data block. '''
@@ -50,7 +45,7 @@ class Validators:
         except (IndexError, AttributeError):
             raise SE.UnexpectedData(f'Unexpected data format encountered:\n{block}')
 
-class Parser:
+class Parsers:
     ''' Purpose: Stores all scraper logic for processing review data. '''
     @staticmethod
     def extract_total_reviews(driver: WebDriver) -> int:
@@ -77,7 +72,7 @@ class Parser:
         ''' Returns: List block of review data from full list of text. '''
         return texts[data_bounds['start_idx']:data_bounds['end_idx']]
 
-class Navigator:
+class Navigators:
     ''' Purpose: Stores all logic for navigating and loading webpages. '''
     @staticmethod
     def grab_next_button(driver: WebDriver) -> WebElement:
@@ -91,7 +86,7 @@ class Navigator:
     def wait_for_url(driver: WebDriver):
         ''' Purpose: Waits for the webpage contents to load. '''
         wait = WebDriverWait(driver, WEBDRIVER_TIMEOUT)
-        wait.until(EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next']"))) # Seek specific
+        wait.until(EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next']")))
     @staticmethod
     def wait_for_next_page(driver: WebDriver):
         ''' Waits for the review contents of the page to update. '''
