@@ -41,14 +41,14 @@ class BrowserManager:
 def extract_data(page_html: str, config: ScrapeConfig) -> list[list]:
     ''' Returns: List of lists of all reviews data scraped for current page.'''
     soup = BeautifulSoup(page_html, 'html.parser')
-    texts = config.Scraper.parsers.extract_page_text(soup)
-    indices = config.Scraper.parsers.extract_data_indices(texts)
+    texts = config.Scraper.Parsers.extract_page_text(soup)
+    indices = config.Scraper.Parsers.extract_data_indices(texts)
     data_lists = []
     for idx in indices:
-        data_bounds = config.Scraper.parsers.extract_data_bounds(idx)
+        data_bounds = config.Scraper.Parsers.extract_data_bounds(idx)
         SE.handle_bad_data(config.Scraper.GenericValidators.validate_data_bounds, config.data_strict, data_bounds, texts)
-        data_block = config.Scraper.parsers.extract_data_block(texts, data_bounds)
-        SE.handle_bad_data(config.Scraper.validators.validate_data_block, config.data_strict, data_block)
+        data_block = config.Scraper.Parsers.extract_data_block(texts, data_bounds)
+        SE.handle_bad_data(config.Scraper.Validators.validate_data_block, config.data_strict, data_block)
         data_lists.append(data_block)
     return data_lists
 
@@ -59,11 +59,11 @@ def scrape_data(driver: WebDriver, config: ScrapeConfig) -> list[list]:
     while True:
         page_html = driver.page_source
         review_data.extend(extract_data(page_html, config))
-        next_button = config.Scraper.navigators.grab_next_button(driver)
-        if config.Scraper.navigators.check_next_page(next_button):
+        next_button = config.Scraper.Navigators.grab_next_button(driver)
+        if config.Scraper.Navigators.check_next_page(next_button):
             pbar.update(1)
             next_button.click()
-            SE.handle_bad_data(config.Scraper.navigators.wait_for_next_page, config.data_strict, driver)
+            SE.handle_bad_data(config.Scraper.Navigators.wait_for_next_page, config.data_strict, driver)
         else:
             pbar.close()
             break
@@ -77,9 +77,9 @@ def scrape_website(driver: WebDriver, config: ScrapeConfig):
         Log.status(f'Scraping {name}')
         try:
             driver.get(url)
-            config.Scraper.navigators.wait_for_url(driver)
+            config.Scraper.Navigators.wait_for_url(driver)
             review_data = scrape_data(driver, config)
-            total_reviews = SE.handle_non_critical(config.Scraper.parsers.extract_total_reviews, config.data_strict, driver)
+            total_reviews = SE.handle_non_critical(config.Scraper.Parsers.extract_total_reviews, config.data_strict, driver)
             SE.handle_bad_data(config.Scraper.GenericValidators.validate_review_count, config.data_strict, len(review_data), total_reviews)
             # TODO: add code to save data, use Failed lists
         except TimeoutException:

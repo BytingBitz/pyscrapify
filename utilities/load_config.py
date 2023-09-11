@@ -19,9 +19,10 @@ class ScrapeConfig:
         with open(json_file_path, 'r') as file:
             data = json.load(file)
             Scraper.GenericValidators.validate_json_structure(data)
-            self.Scraper = Scraper(data.get('scraper'))
+            self.scraper = Scraper(data.get('scraper'))
             for name, url in data['orgs'].items():
-                self.Scraper.validators.validate_url(url)
+                url_pattern = self.scraper.Validators.url_pattern
+                Scraper.GenericValidators.validate_url(url_pattern, url)
                 Scraper.GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
     def get_orgs(self) -> list:

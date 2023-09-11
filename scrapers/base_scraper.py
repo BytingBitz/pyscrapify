@@ -1,7 +1,7 @@
 ''' Created: 10/09/2023 '''
 
 # External Dependencies
-from selenium.webdriver.remote.webdriver import WebDriver, WebElement
+from selenium.webdriver.remote.webdriver import WebDriver
 from bs4 import BeautifulSoup
 import importlib, re, json, os
 
@@ -14,40 +14,37 @@ class BaseScraperModule:
         # Expect: r'expression' to validate loaded url. 
         url_pattern: str = None
     class Navigators:
-        def wait_for_url(driver: WebDriver):
-            ''' Purpose: Waits for the webpage contents to load. '''
-            raise NotImplementedError('wait_for_url method has not been implemented in the derived scraper class.')
+        def wait_for_url(driver: WebDriver): raise NotImplementedError
+        ''' Purpose: Waits for the webpage contents to load. '''
 
 class Scraper:
     ''' Base scraper class that all specific scraper implementations should inherit from. '''
     def __init__(self, scraper_name: str):
-        try: # Dynamically import the scraper module
-            self.Scraper = importlib.import_module(f'scrapers.{scraper_name}')
+        try:  # Dynamically import the scraper module
+            scraper_module = importlib.import_module(f'scrapers.{scraper_name}')
+            self.Scraper = getattr(scraper_module, 'Scraper')  # Get the scraper class from the module
         except ImportError:
             raise NotImplementedError(f"No module named {scraper_name}")
-        self.validators = self.Validators(self.Scraper)
-        self.parsers = self.Parsers(self.Scraper)
-        self.navigators = self.Navigators(self.Scraper)
     
     class Validators:
         ''' Purpose: Contains all scraper validation logic. '''
         def __init__(self, scraper: BaseScraperModule):
             self.scraper = scraper
-        
-        def validate_url(self, url: str):
-            ''' Purpose: Validates URL against scraper Validators.url_pattern regex. '''
             try:
-                url_pattern = self.scraper.Validators.url_pattern
+                self.url_pattern = scraper.Validators.url_pattern
             except AttributeError:
-                raise NotImplementedError('validate_url method has not been implemented in the derived scraper class.')
-            if not re.compile(url_pattern).match(url):
-                raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
-            print('I Worked!')
+                raise NotImplementedError('URL pattern has not been defined in the derived scraper class.')
 
-        @staticmethod
-        def validate_data_block(block: list):
-            ''' Purpose: Validates the given data block. '''
-            raise NotImplementedError('validate_data_block method has not been implemented in the derived scraper class.')
+        def __getattr__(self, attr):
+            # When an attribute is not found on the Validators instance,
+            # this method tries to fetch it from the dynamically loaded scraper module.
+            scraper_class_attr = getattr(self.scraper, attr, None)
+            if scraper_class_attr:
+                return scraper_class_attr
+            # Optionally, you can extend this to look for methods or attributes 
+            # in other parts of the scraper if needed.
+            raise NotImplementedError(f"'{attr}' has not been implemented in the derived scraper class.")
+
 
     class Parsers:
         def __init__(self, scraper: BaseScraperModule):
@@ -77,23 +74,16 @@ class Scraper:
     class Navigators:
         def __init__(self, scraper: BaseScraperModule):
             self.scraper = scraper
-
-        @staticmethod
-        def grab_next_button(driver: WebDriver) -> WebElement:
-            ''' Returns: Next review page button element. '''
-            raise NotImplementedError('grab_next_button method has not been implemented in the derived scraper class.')
-        @staticmethod
-        def check_next_page(next_button: WebElement) -> bool:
-            ''' Returns: Boolean True or False if there is a next review page. '''
-            raise NotImplementedError('check_next_page method has not been implemented in the derived scraper class.')
-        @staticmethod
-        def wait_for_url(driver: WebDriver):
-            ''' Purpose: Waits for the webpage contents to load. '''
-            raise NotImplementedError('wait_for_url method has not been implemented in the derived scraper class.')
-        @staticmethod
-        def wait_for_next_page(driver: WebDriver):
-            ''' Waits for the review contents of the page to update. '''
-            raise NotImplementedError('wait_for_next_page method has not been implemented in the derived scraper class.')
+        def __getattr__(self, attr):
+        # When an attribute is not found on the Scraper instance,
+        # this method tries to fetch it from the dynamically loaded scraper module.
+            scraper_class = getattr(self.scraper, attr, None)
+            if scraper_class:
+                return scraper_class
+            method = getattr(self.scraper.Navigators, attr, None)
+            if method:
+                return method
+            raise NotImplementedError(f"'{attr}' method has not been implemented in the derived scraper class.")
 
     class GenericValidators:
         ''' Purpose: Contains all generic validation logic. '''
@@ -121,6 +111,10 @@ class Scraper:
             name_pattern = re.compile(r'^[a-zA-Z0-9\s\-.,()]+$')
             if not name_pattern.match(name):
                 raise SE.InvalidJsonFormat(f'JSON contains invalid name format: {name}')
+        def validate_url(url_pattern: str, url):
+            ''' Purpose: Validates the given url for specific scraper. '''
+            if not re.compile(url_pattern).match(url):
+                raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
         @staticmethod
         def validate_data_bounds(data_bounds: dict[str, int], texts: list[list]):
             ''' Purpose: Validates if the data is within list bounds. '''
