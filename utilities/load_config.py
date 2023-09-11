@@ -6,7 +6,8 @@
 import json
 
 # Internal Dependencies
-from scrapers.base_scraper import Scraper
+from scrapers.BaseScraper import BaseScraper, GenericValidators
+import scrapers
 
 class ScrapeConfig:
     ''' Purpose: Load specified scrape_config contents. '''
@@ -15,15 +16,16 @@ class ScrapeConfig:
         self.selenium_header = selenium_header
         self.selenium_logging = selenium_logging
         self.orgs = []
-        Scraper.GenericValidators.validate_file_exists(json_file_path)
+        GenericValidators.validate_file_exists(json_file_path)
         with open(json_file_path, 'r') as file:
             data = json.load(file)
-            Scraper.GenericValidators.validate_json_structure(data)
-            self.scraper = Scraper(data.get('scraper'))
+            # Dynamically get the scraper class based on the name provided
+            module = getattr(scrapers, data.get('scraper'))
+            self.scraper: BaseScraper = getattr(module, data.get('scraper'))()
+            GenericValidators.validate_json_structure(data)
             for name, url in data['orgs'].items():
-                url_pattern = self.scraper.Validators.url_pattern
-                Scraper.GenericValidators.validate_url(url_pattern, url)
-                Scraper.GenericValidators.validate_name(name)
+                self.scraper.Validators.validate_url(url)
+                GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
     def get_orgs(self) -> list:
         ''' Returns: List of organisation names and URLs. '''
