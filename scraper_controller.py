@@ -11,7 +11,7 @@ from typing import List
 from scrapers.BaseScraper import GenericValidators
 from utilities.exception_handler import ScraperExceptions as SE
 from utilities.selenium_handler import BrowserManager
-from utilities.config_handler import ScrapeConfig
+from utilities.config_builder import ScrapeConfig
 from utilities.logger_handler import Log
 
 def extract_data(page_html: str, config: ScrapeConfig) -> List[List[str]]:

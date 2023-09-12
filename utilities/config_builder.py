@@ -8,7 +8,7 @@ from typing import List
 
 # Internal Dependencies
 from scrapers.BaseScraper import GenericValidators
-from scrapers.Builder import ScraperBuilder
+from utilities.scraper_builder import ScraperBuilder
 
 class ScrapeConfig:
     ''' Purpose: Load specified scrape_config contents. '''
