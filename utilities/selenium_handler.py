@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
-
+from requests.exceptions import ChunkedEncodingError
 # Internal Dependencies
 from utilities.logger_handler import Log
 
@@ -22,10 +22,13 @@ class BrowserManager:
         if not self.logging:
             Log.info('Disabled Selenium driver logging...')
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()), 
-            options=options)
-        return driver
+        try:
+            driver = webdriver.Chrome(
+                service=Service(ChromeDriverManager().install()), 
+                options=options)
+            return driver
+        except ChunkedEncodingError:
+            raise ConnectionError('Failed to download and build Chrome driver.')
     def __enter__(self):
         self.driver = self.create_browser()
         return self.driver

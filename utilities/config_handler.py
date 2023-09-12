@@ -7,8 +7,8 @@ import json
 from typing import List
 
 # Internal Dependencies
-from scrapers.BaseScraper import BaseScraper, GenericValidators
-import scrapers
+from scrapers.BaseScraper import GenericValidators
+from scrapers.Builder import ScraperBuilder
 
 class ScrapeConfig:
     ''' Purpose: Load specified scrape_config contents. '''
@@ -20,12 +20,12 @@ class ScrapeConfig:
         GenericValidators.validate_file_exists(json_file_path)
         with open(json_file_path, 'r') as file:
             data = json.load(file)
-            # Dynamically get the scraper class based on the name provided
-            module = getattr(scrapers, data.get('scraper'))
-            self.scraper: BaseScraper = getattr(module, data.get('scraper'))()
+            # Dynamically build the scraper class based on the name provided
+            scraper_name = data.get('scraper')
+            self.scraper = ScraperBuilder.build(f'scrapers.{scraper_name}')
             GenericValidators.validate_json_structure(data)
             for name, url in data['orgs'].items():
-                self.scraper.Validators.validate_url(url)
+                self.scraper.validators.validate_url(url)
                 GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
     def get_orgs(self) -> List:

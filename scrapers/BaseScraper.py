@@ -6,74 +6,63 @@ from bs4 import BeautifulSoup
 import re, json, os
 from abc import ABC, abstractmethod
 from typing import List, Dict
+from abc import ABC, abstractmethod
 
 # Internal Dependencies
 from utilities.exception_handler import ScraperExceptions as SE
-from utilities.return_handler import returns
 
-class BaseScraper:
-    
-    class Validators(ABC):
-        ''' Base class for scraper-specific validators. '''
-        url_pattern: str = None  # To be overridden in scraper-specific subclasses
-        @classmethod
-        def validate_url(cls, url: str) -> None:
-            if cls.url_pattern is None:
-                raise NotImplementedError('URL pattern not set for this scraper.')
-            if not re.compile(cls.url_pattern).match(url):
-                raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
-        @returns(None)
-        def validate_data_block(block: List) -> None:
-            ''' Purpose: Validates the given data block. '''
+class BaseValidators(ABC):
+    ''' Base class for scraper-specific validators. '''
+    url_pattern: str  # To be overridden in scraper-specific subclasses
+    @classmethod
+    def validate_url(cls, url: str) -> None:
+        if cls.url_pattern is None:
+            raise NotImplementedError('URL pattern not set for this scraper.')
+        if not re.compile(cls.url_pattern).match(url):
+            raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
+    @abstractmethod
+    def validate_data_block(block: List) -> None:
+        ''' Purpose: Validates the given data block. '''
 
-    class Parsers(ABC):
-        @returns
-        @staticmethod
-        @abstractmethod
-        def extract_total_reviews(driver: WebDriver) -> int:
-            ''' Returns: Total number of reviews for a particular organisation. '''
-        @returns
-        @staticmethod
-        @abstractmethod
-        def extract_page_text(soup: BeautifulSoup) -> List[str]:
-            ''' Returns: List of review element text extracted from page soup. '''
-        @returns
-        @staticmethod
-        @abstractmethod
-        def extract_data_indices(texts: List[List[str]]) -> List[int]:
-            ''' Returns: List of indices of relevant review data blocks in list. '''
-        @returns
-        @staticmethod
-        @abstractmethod
-        def extract_data_bounds(idx: int) -> Dict[str, int]:
-            ''' Returns: Dict of start and end indices for relevant review data in list. '''
-        @returns
-        @staticmethod
-        @abstractmethod
-        def extract_data_block(texts: List[List[str]], data_bounds: Dict[str, int]) -> List[str]:
-            ''' Returns: List block of review data from a full list of text. '''
-    
-    class Navigators(ABC):
-        @returns
-        @staticmethod
-        @abstractmethod
-        def grab_next_button(driver: WebDriver) -> WebElement:
-            ''' Returns: Next review page button element. '''
-        @returns
-        @staticmethod
-        @abstractmethod
-        def check_next_page(next_button: WebElement) -> bool:
-            ''' Returns: Boolean True or False if there is a next review page. '''
-        @returns
-        @staticmethod
-        @abstractmethod
-        def wait_for_url(driver: WebDriver) -> None:
-            ''' Purpose: Waits for the webpage contents to load. '''
-        @returns
-        @staticmethod
-        @abstractmethod
-        def wait_for_page(driver: WebDriver) -> None:
-            ''' Waits for the review contents of the page to update. '''
+class BaseParsers(ABC):
+    @staticmethod
+    @abstractmethod
+    def extract_total_reviews(driver: WebDriver) -> int:
+        ''' Returns: Total number of reviews for a particular organisation. '''
+    @staticmethod
+    @abstractmethod
+    def extract_page_text(soup: BeautifulSoup) -> List[str]:
+        ''' Returns: List of review element text extracted from page soup. '''
+    @staticmethod
+    @abstractmethod
+    def extract_data_indices(texts: List[List[str]]) -> List[int]:
+        ''' Returns: List of indices of relevant review data blocks in list. '''
+    @staticmethod
+    @abstractmethod
+    def extract_data_bounds(idx: int) -> Dict[str, int]:
+        ''' Returns: Dict of start and end indices for relevant review data in list. '''
+    @staticmethod
+    @abstractmethod
+    def extract_data_block(texts: List[List[str]], data_bounds: Dict[str, int]) -> List[str]:
+        ''' Returns: List block of review data from a full list of text. '''
+
+class BaseNavigators(ABC):
+    @staticmethod
+    @abstractmethod
+    def grab_next_button(driver: WebDriver) -> WebElement:
+        ''' Returns: Next review page button element. '''
+    @staticmethod
+    @abstractmethod
+    def check_next_page(next_button: WebElement) -> bool:
+        ''' Returns: Boolean True or False if there is a next review page. '''
+    @staticmethod
+    @abstractmethod
+    def wait_for_url(driver: WebDriver) -> None:
+        ''' Purpose: Waits for the webpage contents to load. '''
+    @staticmethod
+    @abstractmethod
+    def wait_for_page(driver: WebDriver) -> None:
+        ''' Waits for the review contents of the page to update. '''
 
 class GenericValidators:
     ''' Purpose: Contains all generic validation logic. '''
