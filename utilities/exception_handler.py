@@ -1,5 +1,6 @@
 ''' Created: 11/09/2023 '''
 
+# Internal Dependencies
 from utilities.logger_formats import Log
 
 class ScraperExceptions:

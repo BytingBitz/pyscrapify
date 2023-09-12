@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
 from requests.exceptions import ChunkedEncodingError
+
 # Internal Dependencies
 from utilities.logger_formats import Log
 

@@ -1,5 +1,6 @@
 ''' Creation Date: 09/11/2022 '''
 
+# External Dependencies
 from colorama import Fore, Style
 import traceback
 
