@@ -8,9 +8,8 @@ from typing import List
 
 # Internal Dependencies
 from scrapers.BaseScraper import GenericValidators
-from utilities.scraper_builder import ScraperBuilder
 
-class ScrapeConfig:
+class Config:
     ''' Purpose: Load specified scrape_config contents. '''
     def __init__(self, json_file_path: str, data_strict: bool, selenium_header: bool, selenium_logging: bool):
         self.data_strict = data_strict
@@ -20,12 +19,9 @@ class ScrapeConfig:
         GenericValidators.validate_file_exists(json_file_path)
         with open(json_file_path, 'r') as file:
             data = json.load(file)
-            # Dynamically build the scraper class based on the name provided
-            scraper_name = data.get('scraper')
-            self.scraper = ScraperBuilder.build(f'scrapers.{scraper_name}')
+            self.scraper_name = data.get('scraper')
             GenericValidators.validate_json_structure(data)
             for name, url in data['orgs'].items():
-                self.scraper.validators.validate_url(url)
                 GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
     def get_orgs(self) -> List:

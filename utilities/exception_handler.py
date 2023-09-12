@@ -3,6 +3,8 @@
 # Internal Dependencies
 from utilities.logger_formats import Log
 
+# TODO: Fully migrate exception logic to here... somehow...
+
 class ScraperExceptions:
     ''' Purpose: Stores all custom exception logic for project. '''
     class InvalidJsonFormat(Exception):
