@@ -20,6 +20,7 @@ class BaseValidators(ABC):
             raise NotImplementedError('URL pattern not set for this scraper.')
         if not re.compile(cls.url_pattern).match(url):
             raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}')
+    @staticmethod
     @abstractmethod
     def validate_data_block(block: List) -> None:
         ''' Purpose: Validates the given data block. '''

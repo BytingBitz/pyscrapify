@@ -1,6 +1,6 @@
 ''' Created: 11/09/2023 '''
 
-from utilities.logger_handler import Log
+from utilities.logger_formats import Log
 
 class ScraperExceptions:
     ''' Purpose: Stores all custom exception logic for project. '''
