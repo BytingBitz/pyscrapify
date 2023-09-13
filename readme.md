@@ -1,4 +1,4 @@
-# Python Web Scraper Framework
+# PyScrapify - Basic Web Scraper Framework
 
 ***
 # About:
