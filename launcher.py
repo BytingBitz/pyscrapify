@@ -7,7 +7,7 @@ import re, os, sys
 # Internal Dependencies
 from scraper_controller import scrape_launch
 from utilities.logger_formats import Log
-from settings import CONFIG_DIRECTORY, OUTPUT_DIRECTORY, PICK_OUTPUT_NAME
+from settings import CONFIG_DIRECTORY, OUTPUT_DIRECTORY, PICK_OUTPUT_NAME, GENERATED_OUTPUT_NAME_BASE
 
 def list_filenames(directory: str, exclude: list[str] = [], include_extensions: bool = False) -> list[str]:
     ''' Returns: A list of strings of filenames for a specified directory,
@@ -42,7 +42,7 @@ def prompt_filename(directory: str = None, prompt: str = None) -> str:
         else:
             return filename
 
-def uniquify(base_filename: str = 'result'):
+def uniquify(base_filename: str):
     ''' Returns: base_filename plus end "_#" where the # number has been 
         incremented until it does not already exist as an output file name. '''
     counter = 0
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         if PICK_OUTPUT_NAME:
             output_name = prompt_filename(OUTPUT_DIRECTORY, 'Please specify a scraper results filename')
         else:
-            output_name = uniquify()
+            output_name = uniquify(GENERATED_OUTPUT_NAME_BASE)
             Log.info(f'Generated output name: {output_name}')
         scraper_options = list_filenames(CONFIG_DIRECTORY, ['.gitignore'], True)
         if not scraper_options:

@@ -34,5 +34,5 @@ class BrowserManager:
         self.driver = self.create_browser()
         return self.driver
     def __exit__(self, *_):
-        Log.info('Ending Selenium driver...')
+        Log.alert('Ending Selenium driver session...')
         self.driver.quit()
