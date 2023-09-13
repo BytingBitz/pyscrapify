@@ -44,6 +44,9 @@ It is hoped this repository can serve as a robust framework that enables easier 
 ***
 # License:
 
-Copyright (c) @Jamal135
+Copyright (c) [@Jamal135]
 
 MIT License
+
+<!-- github-only -->
+[@Jamal135]: https://github.com/Jamal135
