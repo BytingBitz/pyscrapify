@@ -11,7 +11,8 @@ from scrapers.BaseScraper import GenericValidators
 
 class Config:
     ''' Purpose: Load specified scrape_config contents. '''
-    def __init__(self, config_file: str, data_strict: bool, selenium_header: bool, selenium_logging: bool):
+    def __init__(self, config_file: str, output_name: str, data_strict: bool, selenium_header: bool, selenium_logging: bool):
+        self.output_name = output_name
         self.data_strict = data_strict
         self.selenium_header = selenium_header
         self.selenium_logging = selenium_logging

@@ -7,9 +7,7 @@ import re, os, sys
 # Internal Dependencies
 from scraper_controller import scrape_launch
 from utilities.logger_formats import Log
-
-CONFIG_DIRECTORY = 'scrape_configs/' # TODO: Constants like this need dedicated home
-OUTPUT_DIRECTORY = 'output_files/'
+from settings import CONFIG_DIRECTORY, OUTPUT_DIRECTORY
 
 def list_filenames(directory: str, exclude: list[str] = [], include_extensions: bool = False) -> list[str]:
     ''' Returns: A list of strings of filenames for a specified directory,

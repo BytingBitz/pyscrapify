@@ -76,8 +76,8 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
 
 def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
     ''' Purpose: Manages the scraping of all pages from provided config file. '''
-    try: # TODO: fully implement output_name
-        config = Config(config_file, data_strict, selenium_header, selenium_logging)
+    try:
+        config = Config(config_file, output_name, data_strict, selenium_header, selenium_logging)
         scraper = ScraperBuilder.build(f'scrapers.{config.scraper_name}')
         with BrowserManager(header=selenium_header, logging=selenium_logging) as driver:
             Log.info(f'Loaded {config_file} contents:\n{config.string()}')

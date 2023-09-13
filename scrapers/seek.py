@@ -14,10 +14,10 @@ from typing import List, Dict
 # Internal Dependencies
 from utilities.exception_handler import ScraperExceptions as SE
 from scrapers.BaseScraper import BaseValidators, BaseParsers, BaseNavigators
+from settings import WEBDRIVER_TIMEOUT
 
 from time import sleep
 # NOTE: need to handle TypeErrors
-WEBDRIVER_TIMEOUT = 20
 
 class Validators(BaseValidators):
     ''' Purpose: Contains all scraper specific validation logic. '''
