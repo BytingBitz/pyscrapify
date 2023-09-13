@@ -7,7 +7,7 @@ import re, os, sys
 # Internal Dependencies
 from scraper_controller import scrape_launch
 from utilities.logger_formats import Log
-from settings import CONFIG_DIRECTORY, OUTPUT_DIRECTORY
+from settings import CONFIG_DIRECTORY, OUTPUT_DIRECTORY, PICK_OUTPUT_NAME
 
 def list_filenames(directory: str, exclude: list[str] = [], include_extensions: bool = False) -> list[str]:
     ''' Returns: A list of strings of filenames for a specified directory,
@@ -42,6 +42,17 @@ def prompt_filename(directory: str = None, prompt: str = None) -> str:
         else:
             return filename
 
+def uniquify(base_filename: str = 'result'):
+    ''' Returns: base_filename plus end "_#" where the # number has been 
+        incremented until it does not already exist as an output file name. '''
+    counter = 0
+    filename = f'{base_filename}_{counter}'
+    existing_outputs = list_filenames(OUTPUT_DIRECTORY)
+    while filename in existing_outputs:
+        counter += 1
+        filename = f'{base_filename}_{counter}'
+    return filename
+
 def prompt_options(options: list[str], prompt: str = None) -> str:
     ''' Returns: Selected user option str from prompted list of options.
         Pass in a prompt str to modify the prompt prompt user sees. '''
@@ -61,7 +72,11 @@ def prompt_options(options: list[str], prompt: str = None) -> str:
 if __name__ == '__main__':
     try:
         Log.status('Preparing to launch scraper...')
-        output_name = prompt_filename(OUTPUT_DIRECTORY, 'Please specify a scraper results filename')
+        if PICK_OUTPUT_NAME:
+            output_name = prompt_filename(OUTPUT_DIRECTORY, 'Please specify a scraper results filename')
+        else:
+            output_name = uniquify()
+            Log.info(f'Generated output name: {output_name}')
         scraper_options = list_filenames(CONFIG_DIRECTORY, ['.gitignore'], True)
         if not scraper_options:
             Log.alert(f'No available scraper configs. Create one at {CONFIG_DIRECTORY} first. ')
