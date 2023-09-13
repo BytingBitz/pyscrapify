@@ -2,43 +2,45 @@
 
 # NOTE: This Python file exists only to store configuration settings.
 
-# ===================== Configurable scraper constants =====================
+# General configurable options:
+# ============================================================================
 
 PICK_OUTPUT_NAME = False
-''' Type: bool
-    Description: If true launcher prompts you to specify a output name.
-    Default: True
+''' Type: bool                                                              \n
+    Description: If true launcher prompts you to specify a output name.     \n
+    Default: True                                                           \n
 '''
 GENERATED_OUTPUT_NAME_BASE = 'result'
-''' Type: str
-    Description: Auto generated output filename base string.
-    Default: "result"
+''' Type: str                                                               \n
+    Description: Auto generated output filename base string.                \n
+    Default: "result"                                                       \n
 '''
 RATE_LIMIT_DELAY = 2 # TODO: Implement
-''' Type: int
-    Description: Howmany seconds to sleep to minimise website strain.
-    Default: 2
+''' Type: int                                                               \n
+    Description: Howmany seconds to sleep to minimise website strain.       \n
+    Default: 2                                                              \n
 '''
 WEBDRIVER_TIMEOUT = 20
-''' Type: int
-    Description: Howmany seconds to wait before webdriver timeout.
-    Default: 20
+''' Type: int                                                               \n
+    Description: Howmany seconds to wait before webdriver timeout.          \n
+    Default: 20                                                             \n
 '''
 DUMP_RAW_DATA = True # TODO: Implement
-''' Type: bool
-    Description: If true dumps all raw data blocks to output textfile. 
-    Default: True
+''' Type: bool                                                              \n
+    Description: If true dumps all raw data blocks to output textfile.      \n
+    Default: True                                                           \n
 '''
 
-# ===================== Constants requiring careful modification =====================
+# Warning, avoid modifying below options:
+# ============================================================================
 
 CONFIG_DIRECTORY = 'scrape_configs/'
-''' Type: str 
-    Description: Location of scraper configuration JSON file directory.
-    Default: "scrape_configs/"
+''' Type: str                                                               \n
+    Description: Location of scraper configuration JSON file directory.     \n
+    Default: "scrape_configs/"                                              \n
 '''
 OUTPUT_DIRECTORY = 'output_files/'
-''' Type: str
-    Description: Directory location to save scraper results to file.
-    Default: "output_files/"
+''' Type: str                                                               \n
+    Description: Directory location to save scraper results to file.        \n
+    Default: "output_files/"                                                \n
 '''
