@@ -40,17 +40,19 @@ def scrape_data(driver: WebDriver, scraper: Scraper, config: Config) -> List[Lis
     ''' Returns: List of data blocks for entry_url. '''
     pbar = tqdm(total=0)
     review_data = []
-    while True:
-        page_html = driver.page_source
-        review_data.extend(extract_data(page_html, scraper, config))
-        next_button = scraper.navigators.grab_next_button(driver) # TODO: Fix requiring next_button, maybe no next?
-        if scraper.navigators.check_next_page(next_button):
-            pbar.update(1)
-            next_button.click()
-            SE.handle_bad_data(scraper.navigators.wait_for_page, config.data_strict, driver)
-        else:
-            pbar.close()
-            break
+    try:
+        while True:
+            page_html = driver.page_source
+            review_data.extend(extract_data(page_html, scraper, config))
+            next_button = scraper.navigators.grab_next_button(driver) # TODO: Fix requiring next_button, maybe no next?
+            if scraper.navigators.check_next_page(next_button):
+                pbar.update(1)
+                next_button.click()
+                SE.handle_bad_data(scraper.navigators.wait_for_page, config.data_strict, driver)
+            else:
+                break
+    finally:
+        pbar.close()
     Log.status(f'Extracted {len(review_data)} reviews')
     return review_data
 
@@ -72,17 +74,17 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
             failed.append(name)
             continue
 
-def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
+def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
     ''' Purpose: Manages the scraping of all pages from provided config file. '''
-    try:
-        config = Config(scrape_file, data_strict, selenium_header, selenium_logging)
+    try: # TODO: fully implement output_name
+        config = Config(config_file, data_strict, selenium_header, selenium_logging)
         scraper = ScraperBuilder.build(f'scrapers.{config.scraper_name}')
         with BrowserManager(header=selenium_header, logging=selenium_logging) as driver:
-            Log.info(f'Loaded {scrape_file} contents:\n{config.string()}')
+            Log.info(f'Loaded {config_file} contents:\n{config.string()}')
             scrape_website(driver, scraper, config)
         Log.status('Scraping executed successfully')
-    except KeyboardInterrupt: # TODO: Fix
-        Log.alert('Keyboard interrupt, aborting...')
+    except KeyboardInterrupt:
+        raise KeyboardInterrupt
     except ConnectionError:
         Log.alert('Internet connection failed, check internet and try again...')
     except (FileNotFoundError, SE.InvalidJsonFormat, SE.UnexpectedData, SE.BadScraper) as e:
@@ -94,4 +96,4 @@ def scrape_launch(scrape_file: str, data_strict:bool = True, selenium_header: bo
 
 if __name__ == '__main__':
     Log.info('Debug test...')
-    scrape_launch('scrape_configs/test.json', selenium_header=True)
+    scrape_launch('test.json', selenium_header=True)

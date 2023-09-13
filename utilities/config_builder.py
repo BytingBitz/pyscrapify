@@ -11,13 +11,14 @@ from scrapers.BaseScraper import GenericValidators
 
 class Config:
     ''' Purpose: Load specified scrape_config contents. '''
-    def __init__(self, json_file_path: str, data_strict: bool, selenium_header: bool, selenium_logging: bool):
+    def __init__(self, config_file: str, data_strict: bool, selenium_header: bool, selenium_logging: bool):
         self.data_strict = data_strict
         self.selenium_header = selenium_header
         self.selenium_logging = selenium_logging
         self.orgs = []
-        GenericValidators.validate_file_exists(json_file_path)
-        with open(json_file_path, 'r') as file:
+        config_path = f'scrape_configs/{config_file}'
+        GenericValidators.validate_file_exists(config_path)
+        with open(config_path, 'r') as file:
             data = json.load(file)
             self.scraper_name = data.get('scraper')
             GenericValidators.validate_json_structure(data)
