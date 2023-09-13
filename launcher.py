@@ -67,7 +67,7 @@ if __name__ == '__main__':
             Log.alert(f'No available scraper configs. Create one at {CONFIG_DIRECTORY} first. ')
             sys.exit()
         config_file = prompt_options(scraper_options, 'Please select a scraper configuration')
-        Log.status('Calling scrape launch in scraper_controller.py')
+        Log.status('Calling scraper launcher...')
         scrape_launch(config_file, output_name)
     except KeyboardInterrupt:
         Log.alert('Keyboard interrupt, aborting...')

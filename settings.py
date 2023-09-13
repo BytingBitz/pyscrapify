@@ -10,3 +10,6 @@ OUTPUT_DIRECTORY = 'output_files/'
 
 # Howmany seconds to wait before timeout. 
 WEBDRIVER_TIMEOUT = 20
+
+# If true dumps raw data blocks to output textfile.
+DUMP_RAW_DATA = True

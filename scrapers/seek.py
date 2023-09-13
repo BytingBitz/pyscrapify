@@ -28,13 +28,13 @@ class Validators(BaseValidators):
             # Verify that URL and year meet expected formats.
             year_pattern = re.compile(r"\d{4}")
             # Expected index of data point that contains 4 digit year.
-            data_year_idx = 1
+            data_year_idx = 21
             if not year_pattern.match((block[data_year_idx].split()[1])):
                 raise SE.UnexpectedData(f'Expected year at second block index:\n{block}')
             # Expected challenge text strings in review data block.
             challenge_text = 'The challenges'
             # Expected index of 'The challenges' text in data block.
-            data_challenge_idx = 7
+            data_challenge_idx = 27
             if not block[data_challenge_idx] == challenge_text:
                 raise SE.UnexpectedData(f'Expected challenge text at second last block index:\n{block}')
         except (IndexError, AttributeError):
@@ -61,8 +61,6 @@ class Parsers(BaseParsers):
                 result.append(element.get_text())
             else:
                 result.append(element['aria-label'])
-        print(result)
-        sleep(1000)
         return result
     @staticmethod
     def extract_data_indices(texts: List[str]) -> List[int]:
@@ -74,9 +72,9 @@ class Parsers(BaseParsers):
     def extract_data_bounds(idx: int) -> Dict[str, int]:
         ''' Returns: Dict of start and end indexs for relevant review data in list. '''
         # Distance of 'The good things' text index from start of data block.
-        data_start_offset =  5
+        data_start_offset =  25
         # Length of list data block per set of review data.
-        data_length = 9 
+        data_length = 29 
         start_idx = idx - data_start_offset
         end_idx = idx + data_length - data_start_offset
         return {"start_idx": start_idx, "end_idx": end_idx}
