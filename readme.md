@@ -17,7 +17,7 @@ Pending
 ***
 # Disclaimer:
 
-This tool has been developed solely for educational, research, and public interest purposes. Every user is advised and responsible for:
+This tool has been developed solely for educational, research, and public interest purposes. Every user is advised that they are responsible for:
 
 * Reviewing the Terms of Service (ToS) of the target website they intend to scrape. Do note, ToS can change over time and can be implicit or explicit.
 * Checking any robots.txt file on the target website to ensure that scraping activities are permitted and align with the website's directives.
