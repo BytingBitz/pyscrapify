@@ -17,11 +17,11 @@ Pending
 ***
 # Disclaimer:
 
-This tool has been developed solely for educational, research, and public interest purposes. Every user is advised and responsible to:
+This tool has been developed solely for educational, research, and public interest purposes. Every user is advised and responsible for:
 
-* Review the Terms of Service (ToS) of the target website they intend to scrape. Do note, ToS can change over time and can be implicit or explicit.
-* Check any robots.txt file on the target website to ensure that scraping activities are permitted and align with the website's directives.
-* Limit scraping activities so as to not disrupt or overly burden the website's infrastructure.
+* Reviewing the Terms of Service (ToS) of the target website they intend to scrape. Do note, ToS can change over time and can be implicit or explicit.
+* Checking any robots.txt file on the target website to ensure that scraping activities are permitted and align with the website's directives.
+* Limiting scraping activities so as to not disrupt or overly burden the website's infrastructure.
 
 By using this tool, users agree to follow all relevant guidelines, terms, and restrictions of the target website. They also acknowledge that the creators and maintainers of this repository neither endorse nor encourage any actions that could breach laws, regulations, or website terms. We are not liable for misuse of this tool or any consequences arising from its use. Website providers with concerns about the scraping functionality contained in this repository are encouraged to open an issue so we can work to resolve the concern.
 
@@ -39,9 +39,11 @@ Link: https://github.com/McJeffr
 ***
 # Future:
 
-It is hoped this repository can serve as a robust framework that enables easier setup of reponsible scraping activities. We will continue to work on resolving bugs and improving the functionality of the core framework. Additionally, where appropriate, we will work to repair scrapers added to the official repository.
+It is hoped this repository can serve as a robust framework that enables easier setup of responsible scraping activities. We will continue to work on resolving bugs and improving the functionality of the core framework. Additionally, where appropriate, we will work to repair scrapers added to the official repository.
 
 ***
 # License:
+
+Copyright (c) @Jamal135
 
 MIT License
