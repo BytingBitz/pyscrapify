@@ -8,7 +8,7 @@ from tqdm import tqdm
 from typing import List
 
 # Internal Dependencies
-from scrapers.BaseScraper import GenericValidators
+from utilities.generic_validators import GenericValidators
 from utilities.scraper_builder import ScraperBuilder, Scraper
 from utilities.exception_handler import ScraperExceptions as SE
 from utilities.selenium_handler import BrowserManager
@@ -64,9 +64,9 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
         scraper.validators.validate_url(entry_url)
         try:
             driver.get(entry_url)
-            scraper.navigators.wait_for_url(driver)
+            scraper.navigators.wait_for_entry(driver)
             review_data = scrape_data(driver, scraper, config)
-            total_reviews = SE.handle_non_critical(scraper.parsers.extract_total_reviews, config.data_strict, driver)
+            total_reviews = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
             SE.handle_bad_data(GenericValidators.validate_review_count, config.data_strict, len(review_data), total_reviews)
             # TODO: add code to save data, use Failed lists
         except TimeoutException:
@@ -91,9 +91,5 @@ def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, s
         Log.alert(f'{e.args[0]}\n{config.scraper_name} scraper')
         Log.trace(e.__traceback__)
     except Exception as e:
-        Log.error(f'Unexpected error, {config.scraper_name}, if persists open issue...\n{e}')
+        Log.error(f'Unexpected error, scraper: {config.scraper_name}\n{e}')
         Log.trace(e.__traceback__)
-
-if __name__ == '__main__':
-    Log.info('Debug test...')
-    scrape_launch('test.json', selenium_header=True)

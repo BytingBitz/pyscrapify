@@ -7,7 +7,7 @@ import json
 from typing import List
 
 # Internal Dependencies
-from scrapers.BaseScraper import GenericValidators
+from utilities.generic_validators import GenericValidators
 
 class Config:
     ''' Purpose: Load specified scrape_config contents. '''
@@ -21,8 +21,8 @@ class Config:
         GenericValidators.validate_file_exists(config_path)
         with open(config_path, 'r') as file:
             data = json.load(file)
-            self.scraper_name = data.get('scraper')
             GenericValidators.validate_json_structure(data)
+            self.scraper_name = data.get('scraper')
             for name, url in data['orgs'].items():
                 GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
