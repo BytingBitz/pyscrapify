@@ -15,17 +15,17 @@ GENERATED_OUTPUT_NAME_BASE = 'result'
     Description: Auto generated output filename base string.                \n
     Default: "result"                                                       \n
 '''
-RATE_LIMIT_DELAY = 2 # TODO: Implement
+RATE_LIMIT_DELAY = 2
 ''' Type: int                                                               \n
-    Description: Howmany seconds to sleep to minimise website strain.       \n
+    Description: How many seconds to sleep to minimise website strain.       \n
     Default: 2                                                              \n
 '''
 WEBDRIVER_TIMEOUT = 20
 ''' Type: int                                                               \n
-    Description: Howmany seconds to wait before webdriver timeout.          \n
+    Description: How many seconds to wait before webdriver timeout.          \n
     Default: 20                                                             \n
 '''
-DUMP_RAW_DATA = True # TODO: Implement
+DUMP_RAW_DATA = True
 ''' Type: bool                                                              \n
     Description: If true dumps all raw data blocks to output textfile.      \n
     Default: True                                                           \n

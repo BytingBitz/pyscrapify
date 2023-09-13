@@ -48,7 +48,7 @@ def uniquify(base_filename: str):
     counter = 0
     filename = f'{base_filename}_{counter}'
     existing_outputs = list_filenames(OUTPUT_DIRECTORY)
-    while filename in existing_outputs:
+    while filename in existing_outputs or f'{filename}.dump' in existing_outputs:
         counter += 1
         filename = f'{base_filename}_{counter}'
     return filename

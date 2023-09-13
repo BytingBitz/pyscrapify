@@ -4,8 +4,10 @@
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webdriver import WebDriver
 from bs4 import BeautifulSoup
+from pprint import pformat
 from tqdm import tqdm
 from typing import List
+from time import sleep
 
 # Internal Dependencies
 from utilities.generic_validators import GenericValidators
@@ -14,6 +16,7 @@ from utilities.exception_handler import ScraperExceptions as SE
 from utilities.selenium_handler import BrowserManager
 from utilities.config_builder import Config
 from utilities.logger_formats import Log
+from settings import OUTPUT_DIRECTORY, DUMP_RAW_DATA, RATE_LIMIT_DELAY
 
 # NOTE: All scraper methods originate from the scraper specified via scraper_name in
 #       the configuration JSON provided to scrape_launch or inherited from BaseScraper. 
@@ -49,6 +52,7 @@ def scrape_data(driver: WebDriver, scraper: Scraper, config: Config) -> List[Lis
                 pbar.update(1)
                 next_button.click()
                 SE.handle_bad_data(scraper.navigators.wait_for_page, config.data_strict, driver)
+                sleep(RATE_LIMIT_DELAY)
             else:
                 break
     finally:
@@ -65,10 +69,14 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
         try:
             driver.get(entry_url)
             scraper.navigators.wait_for_entry(driver)
-            review_data = scrape_data(driver, scraper, config)
-            total_reviews = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
-            SE.handle_bad_data(GenericValidators.validate_review_count, config.data_strict, len(review_data), total_reviews)
+            data_blocks = scrape_data(driver, scraper, config)
+            total_blocks = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
+            SE.handle_bad_data(GenericValidators.validate_review_count, config.data_strict, len(data_blocks), total_blocks)
+            if DUMP_RAW_DATA:
+                with open(f'{OUTPUT_DIRECTORY}{config.output_name}.dump.txt', 'a+', encoding='utf-8') as file:
+                    file.write(pformat(data_blocks))
             # TODO: add code to save data, use Failed lists
+            sleep(RATE_LIMIT_DELAY)
         except TimeoutException:
             Log.alert(f'Failed to get {name}, check URL or internet...\n{entry_url}')
             failed.append(name)
