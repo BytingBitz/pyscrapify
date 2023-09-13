@@ -33,7 +33,7 @@ Always use technology ethically and responsibly.
 This project was originally just an employee employer review scraper for Indeed and Seek. At that time, this project was inspired and to an extent guided by the work of tim-sauchuk on a now broken Indeed.com scrape tool.
 Link: https://github.com/tim-sauchuk/Indeed-Company-Review-Scraper
 
-Additionally, McJeffr provided very valuable feedback that greatly helped in guiding this project.
+Additionally, McJeffr provided very valuable feedback that greatly helped in guiding this project originally.
 Link: https://github.com/McJeffr
 
 ***
