@@ -15,6 +15,7 @@ from typing import List, Dict
 from utilities.exception_handler import ScraperExceptions as SE
 from scrapers.BaseScraper import BaseValidators, BaseParsers, BaseNavigators
 
+from time import sleep
 # NOTE: need to handle TypeErrors
 WEBDRIVER_TIMEOUT = 20
 
@@ -50,7 +51,19 @@ class Parsers(BaseParsers):
     @staticmethod
     def extract_page_text(soup: BeautifulSoup) -> List[str]:
         ''' Returns: List of review element text extracted from page soup. '''
-        return [element.get_text() for element in soup.find_all(['span', 'h3'])]
+        elements = soup.find_all(
+        lambda tag: (tag.name in ['span', 'h3']) or 
+                    (tag.name == 'div' and 'out of 5' in tag.get('aria-label', ''))
+        )
+        result = []
+        for element in elements:
+            if element.name in ['span', 'h3']:
+                result.append(element.get_text())
+            else:
+                result.append(element['aria-label'])
+        print(result)
+        sleep(1000)
+        return result
     @staticmethod
     def extract_data_indices(texts: List[str]) -> List[int]:
         ''' Returns: List of indices of relevant review data blocks in list. '''
