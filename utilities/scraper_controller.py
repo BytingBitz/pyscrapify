@@ -12,7 +12,7 @@ from time import sleep
 # Internal Dependencies
 from utilities.generic_validators import GenericValidators
 from utilities.scraper_builder import ScraperBuilder, Scraper
-from utilities.exception_handler import ScraperExceptions as SE
+from utilities.custom_exceptions import ScraperExceptions as SE
 from utilities.selenium_handler import BrowserManager
 from utilities.config_builder import Config
 from utilities.logger_formats import Log
@@ -62,25 +62,19 @@ def scrape_data(driver: WebDriver, scraper: Scraper, config: Config) -> List[Lis
 
 def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
     ''' Purpose: Control Selenium to extract organisation reviews across pages. '''
-    failed = []
     for name, entry_url in config.get_orgs(): # TODO: Move to agnostic function/variable naming
         Log.status(f'Scraping {name}')
         scraper.validators.validate_url(entry_url)
-        try:
-            driver.get(entry_url)
-            scraper.navigators.wait_for_entry(driver)
-            data_blocks = scrape_data(driver, scraper, config)
-            total_blocks = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
-            SE.handle_bad_data(GenericValidators.validate_review_count, config.data_strict, len(data_blocks), total_blocks)
-            if DUMP_RAW_DATA:
-                with open(f'{OUTPUT_DIRECTORY}{config.output_name}.dump.txt', 'a+', encoding='utf-8') as file:
-                    file.write(pformat(data_blocks))
-            # TODO: add code to save data, use Failed lists
-            sleep(RATE_LIMIT_DELAY)
-        except TimeoutException:
-            Log.alert(f'Failed to get {name}, check URL or internet...\n{entry_url}')
-            failed.append(name)
-            continue
+        driver.get(entry_url)
+        scraper.navigators.wait_for_entry(driver)
+        data_blocks = scrape_data(driver, scraper, config)
+        total_blocks = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
+        SE.handle_bad_data(GenericValidators.validate_review_count, config.data_strict, len(data_blocks), total_blocks)
+        if DUMP_RAW_DATA:
+            with open(f'{OUTPUT_DIRECTORY}{config.output_name}.dump.txt', 'a+', encoding='utf-8') as file:
+                file.write(pformat(data_blocks))
+        # TODO: add code to save data, use Failed lists
+        sleep(RATE_LIMIT_DELAY)
 
 def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
     ''' Purpose: Manages the scraping of all pages from provided config file. '''
@@ -93,11 +87,12 @@ def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, s
         Log.status('Scraping executed successfully')
     except KeyboardInterrupt:
         raise KeyboardInterrupt
-    except ConnectionError:
-        Log.alert('Internet connection failed, check internet and try again...')
-    except (FileNotFoundError, SE.InvalidJsonFormat, SE.UnexpectedData, SE.BadScraper) as e:
-        Log.alert(f'{e.args[0]}\n{config.scraper_name} scraper')
-        Log.trace(e.__traceback__)
+    except (FileNotFoundError, NotImplementedError, ConnectionError, SE.InvalidConfigFile, SE.UnexpectedData, SE.BadScraper) as e:
+        Log.alert(f'{e.args[0]}\nScraper:{config.scraper_name}')
+        if isinstance(e, (NotImplementedError, SE.UnexpectedData, SE.BadScraper)):
+            Log.trace(e.__traceback__)
+            Log.dump(config)
     except Exception as e:
-        Log.error(f'Unexpected error, scraper: {config.scraper_name}\n{e}')
+        Log.error(f'Unexpected error: could be connectivity issue, check internet...\nscraper:{config.scraper_name}\n{e}')
         Log.trace(e.__traceback__)
+        Log.dump(config)

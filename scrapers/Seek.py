@@ -9,10 +9,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webdriver import WebDriver, WebElement
 from bs4 import BeautifulSoup
 import re
-from typing import List, Dict
+from typing import List
 
 # Internal Dependencies
-from utilities.exception_handler import ScraperExceptions as SE
+from utilities.custom_exceptions import ScraperExceptions as SE
 from scrapers.BaseScraper import BaseValidators, BaseParsers, BaseNavigators
 from settings import WEBDRIVER_TIMEOUT
 

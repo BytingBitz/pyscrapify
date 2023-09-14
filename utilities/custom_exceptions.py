@@ -7,7 +7,7 @@ from utilities.logger_formats import Log
 
 class ScraperExceptions:
     ''' Purpose: Stores all custom exception logic for project. '''
-    class InvalidJsonFormat(Exception):
+    class InvalidConfigFile(Exception):
         ''' Exception: JSON file was not valid. '''
         pass
     class UnexpectedData(Exception):

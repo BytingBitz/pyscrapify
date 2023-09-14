@@ -5,7 +5,7 @@ from typing import Dict, List
 import re, os, json
 
 # Internal Dependencies:
-from utilities.exception_handler import ScraperExceptions as SE
+from utilities.custom_exceptions import ScraperExceptions as SE
 
 # TODO: make generic validators language agnostic. 
 
@@ -20,23 +20,23 @@ class GenericValidators:
     def validate_json_structure(data: json):
         ''' Purpose: Validates JSON configuration file is structured as expected. '''
         if 'scraper' not in data:
-            raise SE.InvalidJsonFormat('JSON is missing the "scraper" key...')
+            raise SE.InvalidConfigFile('JSON is missing the "scraper" key...')
         if 'orgs' not in data:
-            raise SE.InvalidJsonFormat('JSON is missing the "orgs" key...')
+            raise SE.InvalidConfigFile('JSON is missing the "orgs" key...')
         scraper = data['scraper']
         if not isinstance(scraper, str):
-            raise SE.InvalidJsonFormat('The JSON "scraper" value must be a string.')
+            raise SE.InvalidConfigFile('The JSON "scraper" value must be a string.')
         if scraper == 'BaseScraper':
-            raise SE.InvalidJsonFormat('The value "BaseScraper" is not a valid scraper.')
+            raise SE.InvalidConfigFile('The value "BaseScraper" is not a valid scraper.')
         GenericValidators.validate_file_exists(f'scrapers/{scraper}.py')
         if not isinstance(data['orgs'], dict):
-            raise SE.InvalidJsonFormat('The JSON "orgs" value must be a dictionary.')
+            raise SE.InvalidConfigFile('The JSON "orgs" value must be a dictionary.')
     @staticmethod
     def validate_name(name: str):
         ''' Purpose: Validates the given name. '''
         name_pattern = re.compile(r'^[a-zA-Z0-9\s\-.,()]+$')
         if not name_pattern.match(name):
-            raise SE.InvalidJsonFormat(f'JSON contains invalid name format: {name}')
+            raise SE.InvalidConfigFile(f'JSON contains invalid name format: {name}')
     @staticmethod
     def validate_data_bounds(data_bounds: Dict[str, int], texts: List[List]):
         ''' Purpose: Validates if the data is within list bounds. '''

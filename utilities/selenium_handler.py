@@ -5,7 +5,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ChunkedEncodingError
+import socket
 
 # Internal Dependencies
 from utilities.logger_formats import Log
@@ -28,8 +30,15 @@ class BrowserManager:
                 service=Service(ChromeDriverManager().install()), 
                 options=options)
             return driver
-        except ChunkedEncodingError:
-            raise ConnectionError('Failed to download and build Chrome driver.')
+        except (ChunkedEncodingError, TimeoutException) as e:
+            raise ConnectionError(f'Failed due to {type(e).__name__}: check internet and try again.')
+    def _check_internet(self, host: str = 'www.google.com') -> bool:
+        ''' Returns: True if internet connection is available, else False. '''
+        try:
+            socket.gethostbyname(host)
+            return True
+        except socket.gaierror:
+            return False
     def __enter__(self):
         self.driver = self.create_browser()
         return self.driver

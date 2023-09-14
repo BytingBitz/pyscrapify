@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import List, Dict
 
 # Internal Dependencies
-from utilities.exception_handler import ScraperExceptions as SE
+from utilities.custom_exceptions import ScraperExceptions as SE
 
 class BaseValidators(ABC):
     ''' Base class for scraper-specific validators. '''
@@ -27,12 +27,13 @@ class BaseValidators(ABC):
     @classmethod
     def validate_url(cls, url: str) -> None:
         if not re.compile(cls.url_pattern).match(url):
-            raise SE.InvalidJsonFormat(f'JSON contains invalid URL format: {url}\n Given: {cls.url_pattern}')
-    
-    # Enforce BaseValidators class attributes in sibling class:
+            raise SE.InvalidConfigFile(f'JSON contains invalid URL format: {url}\n Given: {cls.url_pattern}')
+
+    # Enforce BaseValidators class attributes and abstract methods in sibling class:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         check_required_class_attributes(BaseValidators, cls)
+        check_required_abstract_methods(BaseValidators, cls)
 
 class BaseParsers(ABC):
     ''' Base class for scraper-specific Parsers. '''
@@ -73,10 +74,11 @@ class BaseParsers(ABC):
         ''' Returns: List block of review data from full list of text. '''
         return texts[data_bounds['start_idx']:data_bounds['end_idx']]
     
-    # Enforce BaseParsers class attributes in sibling class:
+    # Enforce BaseParsers class attributes and abstract methods in sibling class:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         check_required_class_attributes(BaseParsers, cls)
+        check_required_abstract_methods(BaseParsers, cls)
 
 class BaseNavigators(ABC):
     ''' Base class for scraper-specific Navigators. '''
@@ -98,6 +100,12 @@ class BaseNavigators(ABC):
     @abstractmethod
     def wait_for_page(driver: WebDriver) -> None:
         ''' Waits for the updated contents of the next page to update. '''
+    
+    # Enforce BaseNavigators class attributes and abstract methods in sibling class:
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        check_required_class_attributes(BaseNavigators, cls)
+        check_required_abstract_methods(BaseNavigators, cls)
 
 def check_required_class_attributes(base_class, sub_class):
     ''' Purpose: Validates that sibling of given class contains all class level attributes. '''
@@ -105,3 +113,9 @@ def check_required_class_attributes(base_class, sub_class):
     for attr, _ in base_attrs.items():
         if getattr(sub_class, attr, None) is None:
             raise NotImplementedError(f'Class {sub_class.__name__} must define the {attr} class variable.')
+        
+def check_required_abstract_methods(base_class, sub_class):
+    abstract_methods = base_class.__abstractmethods__
+    for method in abstract_methods:
+        if not callable(getattr(sub_class, method, None)):
+            raise NotImplementedError(f'"{sub_class.__name__}" class needs to implement the "{method}" abstract method.')

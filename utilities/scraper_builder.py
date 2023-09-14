@@ -5,7 +5,7 @@ import importlib
 from scrapers.BaseScraper import BaseValidators, BaseParsers, BaseNavigators
 
 # Internal Dependencies
-from utilities.exception_handler import ScraperExceptions as SE
+from utilities.custom_exceptions import ScraperExceptions as SE
 
 class Scraper:
     ''' Purpose: Resulting expected class returned by ScraperBuilder.build(module_name) for use. '''
@@ -19,7 +19,10 @@ class ScraperBuilder:
     def build(module_name: str) -> Scraper:
         ''' Returns: Constructed instance of Scraper with the module_name Validators, Parsers, and Navigators.
             Builds selected scraper, which inherits additional logic from BaseScraper. '''
-        module = importlib.import_module(module_name)
+        try:
+            module = importlib.import_module(module_name)
+        except ImportError:
+            raise SE.InvalidConfigFile(f'Config "scraper":{module_name} is not a valid scraper...')
         required_classes = ['Validators', 'Parsers', 'Navigators']
         instances = {}
         for attr_name in required_classes:
