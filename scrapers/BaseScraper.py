@@ -3,9 +3,9 @@
 # External Dependencies
 from selenium.webdriver.remote.webdriver import WebDriver, WebElement
 from bs4 import BeautifulSoup
-import re, json, os
+import re
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Union
 
 # Internal Dependencies
 from utilities.custom_exceptions import ScraperExceptions as SE
@@ -18,16 +18,14 @@ class BaseValidators(ABC):
     ''' url_pattern: Regex used to verify url for particular scraper. '''
 
     # Expected sibling Validators class functions:
-    @staticmethod
     @abstractmethod
-    def validate_data_block(block: List) -> None:
+    def validate_data_block(self, block: List) -> None:
         ''' Purpose: Validates the given data block. '''
 
     # Sibling instance inherited BaseParsers class methods:
-    @classmethod
-    def validate_url(cls, url: str) -> None:
-        if not re.compile(cls.url_pattern).match(url):
-            raise SE.InvalidConfigFile(f'JSON contains invalid URL format: {url}\n Given: {cls.url_pattern}')
+    def validate_url(self, url: str) -> None:
+        if not re.compile(self.url_pattern).match(url):
+            raise SE.InvalidConfigFile(f'JSON contains invalid URL format: {url}\n Given: {self.url_pattern}')
 
     # Enforce BaseValidators class attributes and abstract methods in sibling class:
     def __init_subclass__(cls, **kwargs):
@@ -47,34 +45,26 @@ class BaseParsers(ABC):
     ''' data_length: Integer for how many indexs long a data block is. '''
 
     # Expected sibling Parsers class functions:
-    @staticmethod
     @abstractmethod
-    def extract_total_count(driver: WebDriver) -> int:
+    def extract_total_count(self, driver: WebDriver) -> int:
         ''' Returns: Total number of data blocks to be extracted for current entry URL. '''
-    @staticmethod
     @abstractmethod
-    def extract_page_text(soup: BeautifulSoup) -> List[str]:
+    def extract_page_text(self, soup: BeautifulSoup) -> List[str]:
         ''' Returns: List of HTML element texts strings extracted from page soup. '''
-    @staticmethod
     @abstractmethod
-    def extract_to_file(data_blocks: [List[List[str]]]):
-        ''' Purpose: Saves extracted data_blocks to formatted data output. '''
+    def parse_data_block(self, block: List[str]) -> Dict[str, Union[int, str]]:
+        ''' Returns: Data block parsed to dictionary of data to save. '''
 
     # Sibling instance inherited BaseParsers class methods:
-    @classmethod
-    def extract_data_indices(cls, texts: List[str]) -> List[int]:
+    def extract_data_indices(self, texts: List[str]) -> List[int]:
         ''' Returns: List of indices of relevant data blocks in list. '''
-        return [i for i, x in enumerate(texts) if re.search(cls.text_pattern, x)]
-    @classmethod
-    def extract_data_bounds(cls, idx: int) -> Dict[str, int]:
+        return [i for i, x in enumerate(texts) if re.search(self.text_pattern, x)]
+    def extract_data_bounds(self, idx: int) -> Dict[str, int]:
         ''' Returns: Dict of start and end indices for relevant data block in list. '''
-        start_idx = idx - cls.text_idx
-        end_idx = idx + cls.data_length - cls.text_idx
+        start_idx = idx - self.text_idx
+        end_idx = idx + self.data_length - self.text_idx
         return {"start_idx": start_idx, "end_idx": end_idx}
-    
-    # Sibling instance inherited BaseParsers static methods:
-    @staticmethod
-    def extract_data_block(texts: List[str], data_bounds: Dict[str, int]) -> List[str]:
+    def extract_data_block(self, texts: List[str], data_bounds: Dict[str, int]) -> List[str]:
         ''' Returns: List block of review data from full list of text. '''
         return texts[data_bounds['start_idx']:data_bounds['end_idx']]
     
@@ -88,21 +78,17 @@ class BaseNavigators(ABC):
     ''' Base class for scraper-specific Navigators. '''
 
     # Expected sibling Navigators class functions:
-    @staticmethod
     @abstractmethod
-    def grab_next_button(driver: WebDriver) -> WebElement:
+    def grab_next_button(self, driver: WebDriver) -> WebElement:
         ''' Returns: Next review page button element. '''
-    @staticmethod
     @abstractmethod
-    def check_next_page(next_button: WebElement) -> bool:
+    def check_next_page(self, next_button: WebElement) -> bool:
         ''' Returns: Boolean True or False if there is a next review page. '''
-    @staticmethod
     @abstractmethod
-    def wait_for_entry(driver: WebDriver) -> None:
+    def wait_for_entry(self, driver: WebDriver) -> None:
         ''' Purpose: Waits for the entry URL webpage contents to load. '''
-    @staticmethod
     @abstractmethod
-    def wait_for_page(driver: WebDriver) -> None:
+    def wait_for_page(self, driver: WebDriver) -> None:
         ''' Waits for the updated contents of the next page to update. '''
     
     # Enforce BaseNavigators class attributes and abstract methods in sibling class:
