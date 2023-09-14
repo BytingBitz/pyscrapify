@@ -32,13 +32,6 @@ class BrowserManager:
             return driver
         except (ChunkedEncodingError, TimeoutException) as e:
             raise ConnectionError(f'Failed due to {type(e).__name__}: check internet and try again.')
-    def _check_internet(self, host: str = 'www.google.com') -> bool:
-        ''' Returns: True if internet connection is available, else False. '''
-        try:
-            socket.gethostbyname(host)
-            return True
-        except socket.gaierror:
-            return False
     def __enter__(self):
         self.driver = self.create_browser()
         return self.driver

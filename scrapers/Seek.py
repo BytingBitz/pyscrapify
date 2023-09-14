@@ -54,6 +54,49 @@ class Parsers(BaseParsers):
             else:
                 result.append(element['aria-label'])
         return result
+    @staticmethod
+    def extract_to_file(data_blocks: [List[List[str]]]):
+        parsed_data = {}
+        for block in data_blocks:
+            parsed_data['average_rating'] = int(block[0][0])
+            parsed_data['benefits_perks_rating'] = int(block[block.index('Benefits & perks')+2][0])
+            parsed_data['career_development_rating'] = int(block[block.index('Career development')+2][0])
+            parsed_data['work_life_balance_rating'] = int(block[block.index('Work-life balance')+2][0])
+            parsed_data['working_environment_rating'] = int(block[block.index('Working environment')+2][0])
+            parsed_data['management_rating'] = int(block[block.index('Management')+2][0])
+            parsed_data['diversity_equal_opportunity_rating'] = int(block[block.index('Diversity & equal opportunity')+2][0])
+            parsed_data['job_role'] = block[-9]
+            month_year = block[-8].split()
+            parsed_data['review_month'] = month_year[0]
+            parsed_data['review_year'] = int(month_year[1])
+            def parse_location(location: str):
+                city, state, postcode = '', '', ''
+                # Check for format like: 'Hobart TAS 7000'
+                match = re.match(r'(.+?)\s+([A-Z]{2,3})\s+(\d{4})$', location)
+                if match:
+                    city, state, postcode = match.groups()
+                    return city.strip(), state, postcode
+                # Check for format like: 'All Brisbane QLD'
+                match = re.match(r'(All\s)?(.+?)\s+([A-Z]{2,3})$', location)
+                if match:
+                    _, city, state = match.groups()
+                    return city.strip(), state, ''
+                # Check for format like: 'Queanbeyan, New South Wales, Australia'
+                match = re.match(r'(.+?),\s+(.+?),\s+Australia$', location)
+                if match:
+                    city, state = match.groups()
+                    return city.strip(), state, ''
+                return city, state, postcode
+            review_city, review_state, review_postcode = parse_location(block[-7])
+            parsed_data['review_city'] = review_city
+            parsed_data['review_state'] = review_state
+            parsed_data['review_postcode'] = review_postcode
+            parsed_data['years_in_role'] = '<1' if 'less than 1' in block[-6] else '>12' if 'more than 12' in block[-6] else block[-6].split(' ')[0] if 'to' in block[-6] else ''
+            parsed_data['employment_status'] = 'Former' if 'former' in block[-6].lower() else 'Current' if 'current' in block[-6].lower() else ''
+            parsed_data['review_title'] = block[-5]
+            parsed_data['review_pros'] = block[-3]
+            parsed_data['review_cons'] = block[-1]
+        print(parsed_data)
 
 class Navigators(BaseNavigators):
     @staticmethod

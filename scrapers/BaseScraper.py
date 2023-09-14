@@ -55,6 +55,10 @@ class BaseParsers(ABC):
     @abstractmethod
     def extract_page_text(soup: BeautifulSoup) -> List[str]:
         ''' Returns: List of HTML element texts strings extracted from page soup. '''
+    @staticmethod
+    @abstractmethod
+    def extract_to_file(data_blocks: [List[List[str]]]):
+        ''' Purpose: Saves extracted data_blocks to formatted data output. '''
 
     # Sibling instance inherited BaseParsers class methods:
     @classmethod

@@ -25,9 +25,12 @@ class ScraperBuilder:
             raise SE.InvalidConfigFile(f'Config "scraper":{module_name} is not a valid scraper...')
         required_classes = ['Validators', 'Parsers', 'Navigators']
         instances = {}
-        for attr_name in required_classes:
-            if not hasattr(module, attr_name):
-                raise SE.BadScraper(f'Module {module_name} does not contain required scraper class {attr_name}.')
-            class_ref = getattr(module, attr_name)
-            instances[attr_name] = class_ref()
+        try:
+            for attr_name in required_classes:
+                if not hasattr(module, attr_name):
+                    raise SE.BadScraper(f'Module {module_name} does not contain required scraper class {attr_name}.')
+                class_ref = getattr(module, attr_name)
+                instances[attr_name] = class_ref()
+        except TypeError as e:
+            raise SE.BadScraper(e)
         return Scraper(instances['Validators'], instances['Parsers'], instances['Navigators'])

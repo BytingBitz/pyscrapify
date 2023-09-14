@@ -73,7 +73,7 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
         if DUMP_RAW_DATA:
             with open(f'{OUTPUT_DIRECTORY}{config.output_name}.dump.txt', 'a+', encoding='utf-8') as file:
                 file.write(pformat(data_blocks))
-        # TODO: add code to save data, use Failed lists
+        scraper.parsers.extract_to_file(data_blocks)
         sleep(RATE_LIMIT_DELAY)
 
 def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
@@ -88,11 +88,11 @@ def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, s
     except KeyboardInterrupt:
         raise KeyboardInterrupt
     except (FileNotFoundError, NotImplementedError, ConnectionError, SE.InvalidConfigFile, SE.UnexpectedData, SE.BadScraper) as e:
-        Log.alert(f'{e.args[0]}\nScraper:{config.scraper_name}')
+        Log.alert(f'{e.args[0]}\nScraper:{config.scraper_name}\n{type(e).__name__}')
         if isinstance(e, (NotImplementedError, SE.UnexpectedData, SE.BadScraper)):
             Log.trace(e.__traceback__)
             Log.dump(config)
     except Exception as e:
-        Log.error(f'Unexpected error: could be connectivity issue, check internet...\nscraper:{config.scraper_name}\n{e}')
+        Log.error(f'Unexpected error: could be internet...\nscraper:{config.scraper_name}\n{type(e).__name__}\n{e}')
         Log.trace(e.__traceback__)
         Log.dump(config)
