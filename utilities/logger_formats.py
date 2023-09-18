@@ -5,8 +5,6 @@ from colorama import Fore, Style
 import traceback
 import pprint
 
-# TODO: Modify Logging to take in error title and error body seperate. Initialise to only title or no logs.
-
 class Log:
     ''' Purpose: Correctly format print messages given purpose. '''
     PREFIX_STATUS = f'[{Fore.GREEN}-{Style.RESET_ALL}]'

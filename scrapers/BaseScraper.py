@@ -59,7 +59,7 @@ class BaseParsers(ABC):
 
     # Sibling instance inherited BaseParsers class methods:
     def extract_data_indices(self, texts: List[str]) -> List[int]:
-        ''' Returns: List of indices of relevant data blocks in list. '''
+        ''' Returns: List of indices of relevant data blocks in text list. '''
         return [i for i, x in enumerate(texts) if re.search(self.text_pattern, x)]
     def extract_data_bounds(self, idx: int) -> Dict[str, int]:
         ''' Returns: Dict of start and end indices for relevant data block in list. '''
@@ -67,7 +67,7 @@ class BaseParsers(ABC):
         end_idx = idx + self.data_length - self.text_idx
         return {"start_idx": start_idx, "end_idx": end_idx}
     def extract_data_block(self, texts: List[str], data_bounds: Dict[str, int]) -> List[str]:
-        ''' Returns: List block of review data from full list of text. '''
+        ''' Returns: List of data blocks from full list of text. '''
         return texts[data_bounds['start_idx']:data_bounds['end_idx']]
     
     # Enforce BaseParsers class attributes and abstract methods in sibling class:
@@ -82,7 +82,7 @@ class BaseNavigators(ABC):
     # Expected sibling Navigators class functions:
     @abstractmethod
     def check_next_page(self, driver: WebDriver) -> bool:
-        ''' Returns: Boolean True or False if there is a next review page. '''
+        ''' Returns: Boolean True or False if there is a next sybpage. '''
     @abstractmethod
     def grab_next_page(self, driver: WebDriver) -> WebElement:
         ''' Purpose: Navigates driver to the next subpage for scraping. '''
@@ -91,7 +91,7 @@ class BaseNavigators(ABC):
         ''' Purpose: Waits for the entry URL webpage contents to load. '''
     @abstractmethod
     def wait_for_page(self, driver: WebDriver) -> None:
-        ''' Waits for the updated contents of the next page to update. '''
+        ''' Purpose: Waits for the contents of the next subpage to update. '''
     
     # Enforce BaseNavigators class attributes and abstract methods in sibling class:
     def __init_subclass__(cls, **kwargs):

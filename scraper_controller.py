@@ -83,7 +83,7 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
         scraper.navigators.wait_for_entry(driver)
         data_blocks = scrape_data(driver, scraper, config)
         total_blocks = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
-        SE.handle_bad_data(GenericValidators.validate_review_count, config.data_strict, len(data_blocks), total_blocks)
+        SE.handle_bad_data(GenericValidators.validate_data_count, config.data_strict, len(data_blocks), total_blocks)
         save_data(scraper, config, entry_name, data_blocks)
         sleep(RATE_LIMIT_DELAY)
 

@@ -23,7 +23,7 @@ class Config:
             data = json.load(file)
             GenericValidators.validate_json_structure(data)
             self.scraper_name = data.get('scraper')
-            for name, url in data['orgs'].items():
+            for name, url in data['entries'].items():
                 GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
     def get_lines(self) -> List:
