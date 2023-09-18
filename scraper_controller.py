@@ -48,35 +48,34 @@ def extract_data(page_html: str, scraper: Scraper, config: Config) -> List[List[
     soup = BeautifulSoup(page_html, 'html.parser')
     texts = scraper.parsers.extract_page_text(soup)
     indices = scraper.parsers.extract_data_indices(texts)
-    data_lists = []
+    data_blocks = []
     for idx in indices:
         data_bounds = scraper.parsers.extract_data_bounds(idx)
         SE.handle_bad_data(GenericValidators.validate_data_bounds, config.data_strict, data_bounds, texts)
         data_block = scraper.parsers.extract_data_block(texts, data_bounds)
         SE.handle_bad_data(scraper.validators.validate_data_block, config.data_strict, data_block)
-        data_lists.append(data_block)
-    return data_lists
+        data_blocks.append(data_block)
+    return data_blocks
 
 def scrape_data(driver: WebDriver, scraper: Scraper, config: Config) -> List[List[str]]:
     ''' Returns: List of data blocks for entry_url. '''
     pbar = tqdm(total=0)
-    review_data = []
+    data_blocks = []
     try:
         while True:
             page_html = driver.page_source
-            review_data.extend(extract_data(page_html, scraper, config))
+            data_blocks.extend(extract_data(page_html, scraper, config))
             if scraper.navigators.check_next_page(driver):
-                next_button = scraper.navigators.grab_next_button(driver)
+                scraper.navigators.grab_next_page(driver)
                 pbar.update(1)
-                next_button.click()
                 SE.handle_bad_data(scraper.navigators.wait_for_page, config.data_strict, driver)
                 sleep(RATE_LIMIT_DELAY)
             else:
                 break
     finally:
         pbar.close()
-    Log.status(f'Extracted {len(review_data)} reviews')
-    return review_data
+    Log.status(f'Extracted {len(data_blocks)} reviews')
+    return data_blocks
 
 def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
     ''' Purpose: Control Selenium to extract organisation reviews across pages. '''

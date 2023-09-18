@@ -81,11 +81,11 @@ class BaseNavigators(ABC):
 
     # Expected sibling Navigators class functions:
     @abstractmethod
-    def grab_next_button(self, driver: WebDriver) -> WebElement:
-        ''' Returns: Next review page button element. '''
-    @abstractmethod
     def check_next_page(self, driver: WebDriver) -> bool:
         ''' Returns: Boolean True or False if there is a next review page. '''
+    @abstractmethod
+    def grab_next_page(self, driver: WebDriver) -> WebElement:
+        ''' Purpose: Navigates driver to the next subpage for scraping. '''
     @abstractmethod
     def wait_for_entry(self, driver: WebDriver) -> None:
         ''' Purpose: Waits for the entry URL webpage contents to load. '''

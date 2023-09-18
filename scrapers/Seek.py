@@ -112,6 +112,7 @@ class Parsers(BaseParsers):
 
 class Navigators(BaseNavigators):
 
+    @classmethod
     def grab_next_button(self, driver: WebDriver) -> WebElement:
         return driver.find_element(By.XPATH, '//a[@aria-label="Next"]')
     
@@ -119,6 +120,10 @@ class Navigators(BaseNavigators):
         next_button = self.grab_next_button(driver)
         return next_button.get_attribute('tabindex') != '-1'
     
+    def grab_next_page(self, driver: WebDriver) -> bool:
+        next_button = self.grab_next_button(driver)
+        next_button.click()
+        
     def wait_for_entry(self, driver: WebDriver) -> None:
         wait = WebDriverWait(driver, SELENIUM_TIMEOUT)
         wait.until(EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next']")))

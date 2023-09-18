@@ -23,7 +23,7 @@ SELENIUM_LOGGING = False
 ''' Type: bool, default: False
     Description: If true enables selenium logs to stdout. 
 '''
-SELENIUM_HEADER = False
+SELENIUM_HEADER = True
 ''' Type: bool, default: False
     Description: If true sets selenium browser to not be in headerless mode.
 '''
