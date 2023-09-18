@@ -5,7 +5,7 @@ import inquirer
 import re, os, sys
 
 # Internal Dependencies
-from utilities.scraper_controller import scrape_launch
+from scraper_controller import scrape_launch
 from utilities.logger_formats import Log
 from settings import CONFIG_DIRECTORY, OUTPUT_DIRECTORY, PICK_OUTPUT_NAME, GENERATED_OUTPUT_NAME_BASE
 
