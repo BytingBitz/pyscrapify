@@ -11,7 +11,7 @@ GENERATED_OUTPUT_NAME_BASE = 'result'
 ''' Type: str, Default: "result"
     Description: Auto generated output filename base string.
 '''
-RATE_LIMIT_DELAY = 2
+RATE_LIMIT_DELAY = 0
 ''' Type: int, Default: 2
     Description: How many seconds to sleep to minimise website strain.
 '''

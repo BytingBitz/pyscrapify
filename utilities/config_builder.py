@@ -26,7 +26,7 @@ class Config:
             for name, url in data['orgs'].items():
                 GenericValidators.validate_name(name)
                 self.orgs.append({'name': name, 'url': url})
-    def get_orgs(self) -> List:
+    def get_lines(self) -> List:
         ''' Returns: List of organisation names and URLs. '''
         return [(org['name'], org['url']) for org in self.orgs]
     def string(self) -> str:

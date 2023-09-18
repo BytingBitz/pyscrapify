@@ -21,30 +21,27 @@ from settings import OUTPUT_DIRECTORY, DUMP_RAW_DATA, RATE_LIMIT_DELAY, SELENIUM
 # NOTE: All scraper methods originate from the scraper specified via scraper_name in
 #       the configuration JSON provided to scrape_launch or inherited from BaseScraper. 
 
-def save_data(scraper: Scraper, config: Config, data_blocks: List[List[str]]):
+def save_data(scraper: Scraper, config: Config, entry_name: str, data_blocks: List[List[str]]):
     ''' Purpose: Saves parsed data to a csv file output. Optionally will also dump raw
         data_blocks list of list of strings to a dump.txt file as well. '''
     if DUMP_RAW_DATA:
         with open(f'{OUTPUT_DIRECTORY}{config.output_name}.dump.txt', 'a+', encoding='utf-8', newline='') as file:
             file.write(pformat(data_blocks))
     with open(f'{OUTPUT_DIRECTORY}{config.output_name}.csv', 'a+', encoding='utf-8',newline='') as file:
-        fieldnames = scraper.parsers.parse_data_block(data_blocks[0]).keys()
+        fieldnames = list(scraper.parsers.parse_data_block(data_blocks[0]).keys()) + ['entry_name']
         writer = csv.DictWriter(file, quoting=csv.QUOTE_ALL, fieldnames=fieldnames)
         if file.tell() == 0:
             Log.info(f'Constructed CSV fieldnames:\n{fieldnames}')
             writer.writeheader()
         for block in data_blocks:
             parsed_data = scraper.parsers.parse_data_block(block)
+            parsed_data['entry_name'] = entry_name
             if set(fieldnames) != set(parsed_data.keys()):
                 raise SE.UnexpectedData('Fieldnames and parsed_data keys do not match!')
             writer.writerow(parsed_data)
 
 def extract_data(page_html: str, scraper: Scraper, config: Config) -> List[List[str]]:
-    ''' Returns: List of data blocks for page. This function transforms a page_html 
-        into a list of text which should contain desired data. From here it creates 
-        a list of locations of desired data blocks within this. For each location 
-        it then builds data bounds and extracts that block of data to a list of 
-        data blocks, where a data block is a list of strings of desired data. '''
+    ''' Purpose: Controls selenium to scrape data from given page, returns page data_blocks. '''
     soup = BeautifulSoup(page_html, 'html.parser')
     texts = scraper.parsers.extract_page_text(soup)
     indices = scraper.parsers.extract_data_indices(texts)
@@ -58,7 +55,7 @@ def extract_data(page_html: str, scraper: Scraper, config: Config) -> List[List[
     return data_blocks
 
 def scrape_data(driver: WebDriver, scraper: Scraper, config: Config) -> List[List[str]]:
-    ''' Returns: List of data blocks for entry_url. '''
+    ''' Purpose: Controls selenium to scrape all pages for entry URL, returns URL data_blocks. '''
     pbar = tqdm(total=0)
     data_blocks = []
     try:
@@ -78,16 +75,16 @@ def scrape_data(driver: WebDriver, scraper: Scraper, config: Config) -> List[Lis
     return data_blocks
 
 def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
-    ''' Purpose: Control Selenium to extract organisation reviews across pages. '''
-    for name, entry_url in config.get_orgs(): # TODO: Move to agnostic function/variable naming
-        Log.status(f'Scraping {name}')
+    ''' Purpose: Control Selenium to extract data for each entry URL. '''
+    for entry_name, entry_url in config.get_lines():
+        Log.status(f'Scraping {entry_name}')
         scraper.validators.validate_url(entry_url)
         driver.get(entry_url)
         scraper.navigators.wait_for_entry(driver)
         data_blocks = scrape_data(driver, scraper, config)
         total_blocks = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
         SE.handle_bad_data(GenericValidators.validate_review_count, config.data_strict, len(data_blocks), total_blocks)
-        save_data(scraper, config, data_blocks)
+        save_data(scraper, config, entry_name, data_blocks)
         sleep(RATE_LIMIT_DELAY)
 
 def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = SELENIUM_HEADER, selenium_logging: bool = SELENIUM_LOGGING):
