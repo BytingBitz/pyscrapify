@@ -37,6 +37,8 @@ class BaseParsers(ABC):
     ''' Base class for scraper-specific Parsers. '''
 
     # Expected sibling Parsers class values:
+    browser_lang: str
+    ''' browser_lang: Language code for Chrome browser session. https://cloud.google.com/speech-to-text/docs/languages '''
     text_pattern: str
     ''' text_pattern: Regex used to spot data blocks inside texts list. '''
     text_idx: int

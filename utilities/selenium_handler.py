@@ -7,18 +7,19 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ChunkedEncodingError
-import socket
 
 # Internal Dependencies
 from utilities.logger_formats import Log
 
 class BrowserManager:
-    def __init__(self, header: bool = False, logging: bool = False):
+    def __init__(self, language: str, header: bool = False, logging: bool = False):
         self.header = header
         self.logging = logging
+        self.language = language
     def create_browser(self) -> WebDriver:
         ''' Returns: Created Selenium Chrome browser session. '''
         options = webdriver.ChromeOptions()
+        options.add_argument(f'--lang={self.language}')
         if not self.header:
             Log.info('Running Selenium driver without header...')
             options.add_argument('--headless')

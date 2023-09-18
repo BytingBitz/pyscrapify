@@ -96,7 +96,7 @@ def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, s
     try:
         config = Config(config_file, output_name, data_strict, selenium_header, selenium_logging)
         scraper = ScraperBuilder.build(f'scrapers.{config.scraper_name}')
-        with BrowserManager(header=selenium_header, logging=selenium_logging) as driver:
+        with BrowserManager(language=scraper.parsers.browser_lang, header=selenium_header, logging=selenium_logging) as driver:
             Log.info(f'Loaded {config_file} contents:\n{config.string()}')
             scrape_website(driver, scraper, config)
         Log.status('Scraping executed successfully')

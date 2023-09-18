@@ -35,6 +35,7 @@ class Validators(BaseValidators):
 
 class Parsers(BaseParsers):
 
+    browser_lang = 'en-AU'
     text_pattern = r'The good things'
     text_idx = 25
     data_length = 29
