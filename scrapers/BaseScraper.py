@@ -84,7 +84,7 @@ class BaseNavigators(ABC):
     def grab_next_button(self, driver: WebDriver) -> WebElement:
         ''' Returns: Next review page button element. '''
     @abstractmethod
-    def check_next_page(self, next_button: WebElement) -> bool:
+    def check_next_page(self, driver: WebDriver) -> bool:
         ''' Returns: Boolean True or False if there is a next review page. '''
     @abstractmethod
     def wait_for_entry(self, driver: WebDriver) -> None:

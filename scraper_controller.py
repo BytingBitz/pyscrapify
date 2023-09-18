@@ -65,8 +65,8 @@ def scrape_data(driver: WebDriver, scraper: Scraper, config: Config) -> List[Lis
         while True:
             page_html = driver.page_source
             review_data.extend(extract_data(page_html, scraper, config))
-            next_button = scraper.navigators.grab_next_button(driver) # TODO: Fix requiring next_button, maybe no next?
-            if scraper.navigators.check_next_page(next_button):
+            if scraper.navigators.check_next_page(driver):
+                next_button = scraper.navigators.grab_next_button(driver)
                 pbar.update(1)
                 next_button.click()
                 SE.handle_bad_data(scraper.navigators.wait_for_page, config.data_strict, driver)

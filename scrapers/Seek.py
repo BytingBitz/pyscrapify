@@ -115,7 +115,8 @@ class Navigators(BaseNavigators):
     def grab_next_button(self, driver: WebDriver) -> WebElement:
         return driver.find_element(By.XPATH, '//a[@aria-label="Next"]')
     
-    def check_next_page(self, next_button: WebElement) -> bool:
+    def check_next_page(self, driver: WebDriver) -> bool:
+        next_button = self.grab_next_button(driver)
         return next_button.get_attribute('tabindex') != '-1'
     
     def wait_for_entry(self, driver: WebDriver) -> None:
