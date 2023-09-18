@@ -63,7 +63,9 @@ class Parsers(BaseParsers):
             patterns = [
                 (r'(.+?)\s+([A-Z]{2,3})\s+(\d{4})$', lambda m: (m.group(1).strip(), m.group(2), m.group(3))),
                 (r'(All\s)?(.+?)\s+([A-Z]{2,3})$', lambda m: (m.group(2).strip(), m.group(3), '')),
-                (r'(.+?),\s+(.+?),\s+Australia$', lambda m: (m.group(1).strip(), m.group(2), ''))
+                (r'(.+?),\s+(.+?),\s+Australia$', lambda m: (m.group(1).strip(), m.group(2), '')),
+                (r'(.+?),\s+Australia$', lambda m: (m.group(1).strip(), 'Australia', '')),  # New pattern
+                (r'^(.+)$', lambda m: (m.group(1).strip(), '', ''))
             ]
             for pattern, action in patterns:
                 if (match := re.match(pattern, location)):
