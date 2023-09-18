@@ -37,7 +37,7 @@ class BrowserManager:
         self.driver = self.create_browser()
         return self.driver
     def __exit__(self, exc_type, *_):
-        if exc_type is None:
+        if exc_type is None or exc_type is KeyboardInterrupt:
             Log.info('Ending Selenium driver session...')
         else:
             Log.alert('Error occurred, ending Selenium driver session...')

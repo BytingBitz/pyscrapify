@@ -16,7 +16,7 @@ from utilities.custom_exceptions import ScraperExceptions as SE
 from utilities.selenium_handler import BrowserManager
 from utilities.config_builder import Config
 from utilities.logger_formats import Log
-from settings import OUTPUT_DIRECTORY, DUMP_RAW_DATA, RATE_LIMIT_DELAY
+from settings import OUTPUT_DIRECTORY, DUMP_RAW_DATA, RATE_LIMIT_DELAY, SELENIUM_HEADER, SELENIUM_LOGGING
 
 # NOTE: All scraper methods originate from the scraper specified via scraper_name in
 #       the configuration JSON provided to scrape_launch or inherited from BaseScraper. 
@@ -91,7 +91,7 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
         save_data(scraper, config, data_blocks)
         sleep(RATE_LIMIT_DELAY)
 
-def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = False, selenium_logging: bool = False):
+def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = SELENIUM_HEADER, selenium_logging: bool = SELENIUM_LOGGING):
     ''' Purpose: Manages the scraping of all pages from provided config file. '''
     try:
         config = Config(config_file, output_name, data_strict, selenium_header, selenium_logging)

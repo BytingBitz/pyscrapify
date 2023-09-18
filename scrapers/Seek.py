@@ -14,7 +14,7 @@ from typing import List, Dict, Union
 # Internal Dependencies
 from utilities.custom_exceptions import ScraperExceptions as SE
 from scrapers.BaseScraper import BaseValidators, BaseParsers, BaseNavigators
-from settings import WEBDRIVER_TIMEOUT
+from settings import SELENIUM_TIMEOUT
 
 class Validators(BaseValidators):
 
@@ -119,7 +119,7 @@ class Navigators(BaseNavigators):
         return next_button.get_attribute('tabindex') != '-1'
     
     def wait_for_entry(self, driver: WebDriver) -> None:
-        wait = WebDriverWait(driver, WEBDRIVER_TIMEOUT)
+        wait = WebDriverWait(driver, SELENIUM_TIMEOUT)
         wait.until(EC.presence_of_element_located((By.XPATH, "//a[@aria-label='Next']")))
 
     def wait_for_page(self, driver: WebDriver) -> None:
@@ -130,5 +130,5 @@ class Navigators(BaseNavigators):
                 return current_texts != old_texts
             except StaleElementReferenceException:
                 return False
-        wait = WebDriverWait(driver, WEBDRIVER_TIMEOUT)
+        wait = WebDriverWait(driver, SELENIUM_TIMEOUT)
         wait.until(page_has_changed)
