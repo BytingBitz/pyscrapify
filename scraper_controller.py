@@ -28,14 +28,20 @@ def save_data(scraper: Scraper, config: Config, entry_name: str, data_blocks: Li
         with open(f'{OUTPUT_DIRECTORY}{config.output_name}.dump.txt', 'a+', encoding='utf-8', newline='') as file:
             file.write(pformat(data_blocks))
     with open(f'{OUTPUT_DIRECTORY}{config.output_name}.csv', 'a+', encoding='utf-8',newline='') as file:
-        fieldnames = list(scraper.parsers.parse_data_block(data_blocks[0]).keys()) + ['entry_name']
+        fieldnames = list(scraper.parsers.parse_data_block(data_blocks[0]).keys()) + ['entry_name'] + ['raw_data']
         writer = csv.DictWriter(file, quoting=csv.QUOTE_ALL, fieldnames=fieldnames)
         if file.tell() == 0:
             Log.info(f'Constructed CSV fieldnames:\n{fieldnames}')
             writer.writeheader()
         for block in data_blocks:
+            for i, item in enumerate(block):
+                item = ' '.join(item.split())
+                item = item.replace('"', "'")
+                item = item.replace(';', ',')
+                block[i] = item
             parsed_data = scraper.parsers.parse_data_block(block)
             parsed_data['entry_name'] = entry_name
+            parsed_data['raw_data'] = ';'.join(block)
             if set(fieldnames) != set(parsed_data.keys()):
                 raise SE.UnexpectedData('Fieldnames and parsed_data keys do not match!')
             writer.writerow(parsed_data)

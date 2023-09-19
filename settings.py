@@ -2,6 +2,8 @@
 
 # NOTE: This Python file exists only to store configuration settings.
 
+# TODO: Move default settings to template, load settings such that custom settings.py can be created locally
+
 # General configurable options:
 PICK_OUTPUT_NAME = False
 ''' Type: bool, Default: False

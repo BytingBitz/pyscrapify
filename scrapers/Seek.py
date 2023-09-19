@@ -64,7 +64,7 @@ class Parsers(BaseParsers):
                 (r'(.+?)\s+([A-Z]{2,3})\s+(\d{4})$', lambda m: (m.group(1).strip(), m.group(2), m.group(3))),
                 (r'(All\s)?(.+?)\s+([A-Z]{2,3})$', lambda m: (m.group(2).strip(), m.group(3), '')),
                 (r'(.+?),\s+(.+?),\s+Australia$', lambda m: (m.group(1).strip(), m.group(2), '')),
-                (r'(.+?),\s+Australia$', lambda m: (m.group(1).strip(), 'Australia', '')),  # New pattern
+                (r'(.+?),\s+Australia$', lambda m: ('', m.group(1).strip(), '')),  # New pattern
                 (r'^(.+)$', lambda m: (m.group(1).strip(), '', ''))
             ]
             for pattern, action in patterns:
@@ -80,10 +80,6 @@ class Parsers(BaseParsers):
                 return role_str.split(' ')[0] + '-' + role_str.split(' ')[2]
             else:
                 return ''
-        def clean_string(s: str) -> str:
-            s = s.replace('"', "'")
-            s = re.sub(r'\s+', ' ', s).strip()
-            return s
         ratings = [
             ('overall_rating', 0),
             ('benefits_perks_rating', 'Benefits & perks'),
@@ -107,9 +103,6 @@ class Parsers(BaseParsers):
             'review_pros': block[-3],
             'review_cons': block[-1],
         })
-        for key, value in parsed_data.items():
-            if isinstance(value, str):
-                parsed_data[key] = clean_string(value)
         return parsed_data
 
 class Navigators(BaseNavigators):

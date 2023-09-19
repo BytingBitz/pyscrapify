@@ -87,3 +87,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         Log.alert('Keyboard interrupt, aborting...')
         sys.exit()
+
+# Remaining tasks: TODO: Implement scraper abstract method error handling
+#                  TODO: Implement robust timeout handling/retry
+#                  TODO: Complete readme.md file
+#                  TODO: Update settings.py loading/local untracked version
+#                  TODO: Fully implement data_strict, allow entry fails
+# Release: v1.0
