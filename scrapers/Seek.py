@@ -60,21 +60,43 @@ class Parsers(BaseParsers):
     
     def parse_data_block(self, block: List[str]) -> Dict[str, Union[int, str]]:
         def parse_location(location: str):
-            patterns = [
-                (r'(.+?)\s+([A-Z]{2,3})\s+(\d{4})$', lambda m: (m.group(1).strip(), m.group(2), m.group(3))),
-                (r'(All\s)?(.+?)\s+([A-Z]{2,3})$', lambda m: (m.group(2).strip(), m.group(3), '')),
-                (r'(.+?),\s+(.+?),\s+Australia$', lambda m: (m.group(1).strip(), m.group(2), '')),
-                (r'(.+?),\s+Australia$', lambda m: ('', m.group(1).strip(), '')),  # New pattern
-                (r'^(.+)$', lambda m: (m.group(1).strip(), '', ''))
-            ]
-            for pattern, action in patterns:
-                if (match := re.match(pattern, location)):
-                    return action(match)
-            return '', '', ''
+            state_mapping = {
+                'VIC': 'VIC', 'Victoria': 'VIC',
+                'NSW': 'NSW', 'New South Wales': 'NSW',
+                'QLD': 'QLD', 'Queensland': 'QLD',
+                'SA': 'SA', 'South Australia': 'SA',
+                'WA': 'WA', 'Western Australia': 'WA',
+                'TAS': 'TAS', 'Tasmania': 'TAS',
+                'NT': 'NT', 'Northern Territory': 'NT',
+                'ACT': 'ACT', 'Australian Capital Territory': 'ACT'
+            }
+            postcode_match = re.search(r'(\s|^)(\d{4})$', location)
+            postcode = postcode_match.group(2) if postcode_match else ''
+            state = ''
+            for key in state_mapping:
+                if key in location:
+                    state = state_mapping[key]
+                    location = location.replace(key, '').strip(', ')
+                    break
+            if ',' in location:
+                city = location.split(',')[0].strip()
+            else:
+                if state:
+                    city = location.split(state)[0].strip()
+                    if city == location:
+                        city = ''
+                elif postcode:
+                    city = location.split(postcode)[0].strip()
+                    if city == location:
+                        city = ''
+                else:
+                    city = location
+            return city, state, postcode
         def parse_years_in_role(role_str: str) -> str:
+            role_str.lower()
             if 'less than 1' in role_str:
                 return '<1'
-            elif 'more than 12' in role_str:
+            elif 'more than 12' in role_str: 
                 return '>12'
             elif 'to' in role_str:
                 return role_str.split(' ')[0] + '-' + role_str.split(' ')[2]

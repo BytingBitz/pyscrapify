@@ -21,14 +21,14 @@ from settings import OUTPUT_DIRECTORY, DUMP_RAW_DATA, RATE_LIMIT_DELAY, SELENIUM
 # NOTE: All scraper methods originate from the scraper specified via scraper_name in
 #       the configuration JSON provided to scrape_launch or inherited from BaseScraper. 
 
-def save_data(scraper: Scraper, config: Config, entry_name: str, data_blocks: List[List[str]]):
+def save_data(scraper: Scraper, config: Config, entry_name: str, entry_url: str, data_blocks: List[List[str]]):
     ''' Purpose: Saves parsed data to a csv file output. Optionally will also dump raw
         data_blocks list of list of strings to a dump.txt file as well. '''
     if DUMP_RAW_DATA:
         with open(f'{OUTPUT_DIRECTORY}{config.output_name}.dump.txt', 'a+', encoding='utf-8', newline='') as file:
             file.write(pformat(data_blocks))
     with open(f'{OUTPUT_DIRECTORY}{config.output_name}.csv', 'a+', encoding='utf-8',newline='') as file:
-        fieldnames = list(scraper.parsers.parse_data_block(data_blocks[0]).keys()) + ['entry_name'] + ['raw_data']
+        fieldnames = list(scraper.parsers.parse_data_block(data_blocks[0]).keys()) + ['entry_name'] + ['entry_url'] + ['raw_data']
         writer = csv.DictWriter(file, quoting=csv.QUOTE_ALL, fieldnames=fieldnames)
         if file.tell() == 0:
             Log.info(f'Constructed CSV fieldnames:\n{fieldnames}')
@@ -41,6 +41,7 @@ def save_data(scraper: Scraper, config: Config, entry_name: str, data_blocks: Li
                 block[i] = item
             parsed_data = scraper.parsers.parse_data_block(block)
             parsed_data['entry_name'] = entry_name
+            parsed_data['entry_url'] = entry_url
             parsed_data['raw_data'] = ';'.join(block)
             if set(fieldnames) != set(parsed_data.keys()):
                 raise SE.UnexpectedData('Fieldnames and parsed_data keys do not match!')
@@ -90,7 +91,7 @@ def scrape_website(driver: WebDriver, scraper: Scraper, config: Config):
         data_blocks = scrape_data(driver, scraper, config)
         total_blocks = SE.handle_non_critical(scraper.parsers.extract_total_count, config.data_strict, driver)
         SE.handle_bad_data(GenericValidators.validate_data_count, config.data_strict, len(data_blocks), total_blocks)
-        save_data(scraper, config, entry_name, data_blocks)
+        save_data(scraper, config, entry_name, entry_url, data_blocks)
         sleep(RATE_LIMIT_DELAY)
 
 def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, selenium_header: bool = SELENIUM_HEADER, selenium_logging: bool = SELENIUM_LOGGING):

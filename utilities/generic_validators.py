@@ -32,7 +32,7 @@ class GenericValidators:
     @staticmethod
     def validate_name(name: str):
         ''' Purpose: Validates the given name. '''
-        name_pattern = re.compile(r'^[a-zA-Z0-9\s\-.,()]+$')
+        name_pattern = re.compile(r'^[a-zA-Z0-9\s\-.,()\'&]+$')
         if not name_pattern.match(name):
             raise SE.InvalidConfigFile(f'JSON contains invalid name format: {name}')
     @staticmethod
