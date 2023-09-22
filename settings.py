@@ -13,11 +13,11 @@ GENERATED_OUTPUT_NAME_BASE = 'result'
 ''' Type: str, Default: "result"
     Description: Auto generated output filename base string.
 '''
-RATE_LIMIT_DELAY = 2
+RATE_LIMIT_DELAY = 0
 ''' Type: int, Default: 2
     Description: How many seconds to sleep to minimise website strain.
 '''
-SELENIUM_TIMEOUT = 20
+SELENIUM_TIMEOUT = 40
 ''' Type: int, Default: 20
     Description: How many seconds to wait before webdriver timeout.
 '''
@@ -25,7 +25,7 @@ SELENIUM_LOGGING = False
 ''' Type: bool, default: False
     Description: If true enables selenium logs to stdout. 
 '''
-SELENIUM_HEADER = False
+SELENIUM_HEADER = True
 ''' Type: bool, default: False
     Description: If true sets selenium browser to not be in headerless mode.
 '''

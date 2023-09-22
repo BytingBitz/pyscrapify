@@ -7,7 +7,14 @@ Please ensure you read and understand the disclaimer contained within this readm
 
 REWRITE IN PROGRESS
 
-* Scrapes employee employer reviews from seek.com.au
+Roadmap to v1.0
+
+* Implement scraper abstract method error handling
+* Implement robust timeout handling/retry
+* Complete readme.md file
+* Update settings.py loading/local untracked version
+* Fully implement data_strict, allow entry fails
+* Validate data blocks don't overlap
 
 ***
 # Usage:
