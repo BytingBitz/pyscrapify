@@ -76,27 +76,22 @@ class Parsers(BaseParsers):
             for key in state_mapping:
                 if key in location:
                     state = state_mapping[key]
-                    location = location.replace(key, '').strip(', ')
                     break
-            if ',' in location:
-                city = location.split(',')[0].strip()
+            if state:
+                city = location.split(state)[0].strip()
+                if city == location:
+                    city = ''
+            elif postcode:
+                city = location.split(postcode)[0].strip()
+                if city == location:
+                    city = ''
             else:
-                if state:
-                    city = location.split(state)[0].strip()
-                    if city == location:
-                        city = ''
-                elif postcode:
-                    city = location.split(postcode)[0].strip()
-                    if city == location:
-                        city = ''
-                else:
-                    city = location
+                city = location
             return city, state, postcode
         def parse_years_in_role(role_str: str) -> str:
-            role_str.lower()
-            if 'less than 1' in role_str:
+            if 'Less than 1' in role_str:
                 return '<1'
-            elif 'more than 12' in role_str: 
+            elif 'More than 12' in role_str: 
                 return '>12'
             elif 'to' in role_str:
                 return role_str.split(' ')[0] + '-' + role_str.split(' ')[2]
