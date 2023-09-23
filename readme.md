@@ -16,6 +16,15 @@ Roadmap to v1.0
 * Fully implement data_strict, allow entry fails
 * Validate data blocks don't overlap
 
+Roadmap to v1.1
+
+* Ensure Linux and Windows compatibility
+* Move to more robust dependency manager
+  
+Roadmap to v1.2
+
+* Explore making pyscrapify a package
+
 ***
 # Usage:
 

@@ -112,4 +112,3 @@ def scrape_launch(config_file: str, output_name: str, data_strict:bool = True, s
     except Exception as e:
         Log.error(f'Unexpected error: could be internet...\nscraper:{config.scraper_name} {type(e).__name__}\n{e}')
         Log.trace(e.__traceback__)
-        Log.dump(config)
