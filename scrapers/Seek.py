@@ -60,34 +60,29 @@ class Parsers(BaseParsers):
     
     def parse_data_block(self, block: List[str]) -> Dict[str, Union[int, str]]:
         def parse_location(location: str):
-            state_mapping = {
-                'VIC': 'VIC', 'Victoria': 'VIC',
-                'NSW': 'NSW', 'New South Wales': 'NSW',
-                'QLD': 'QLD', 'Queensland': 'QLD',
-                'SA': 'SA', 'South Australia': 'SA',
-                'WA': 'WA', 'Western Australia': 'WA',
-                'TAS': 'TAS', 'Tasmania': 'TAS',
-                'NT': 'NT', 'Northern Territory': 'NT',
-                'ACT': 'ACT', 'Australian Capital Territory': 'ACT'
+            state_mappings = {
+                'VIC': ['VIC', 'Victoria'],
+                'NSW': ['NSW', 'New South Wales'],
+                'QLD': ['QLD', 'Queensland'],
+                'SA': ['SA', 'South Australia'],
+                'WA': ['WA', 'Western Australia'],
+                'TAS': ['TAS', 'Tasmania'],
+                'NT': ['NT', 'Northern Territory'],
+                'ACT': ['ACT', 'Australian Capital Territory']
             }
+            for key in state_mappings:
+                state_mappings[key].extend([name.lower() for name in state_mappings[key]])
             postcode_match = re.search(r'(\s|^)(\d{4})$', location)
             postcode = postcode_match.group(2) if postcode_match else ''
-            state = ''
-            for key in state_mapping:
-                if key in location:
-                    state = state_mapping[key]
-                    break
-            if state:
-                city = location.split(state)[0].strip()
-                if city == location:
-                    city = ''
-            elif postcode:
-                city = location.split(postcode)[0].strip()
-                if city == location:
-                    city = ''
-            else:
-                city = location
-            return city, state, postcode
+            states_found = []
+            for key, names in state_mappings.items():
+                for name in names:
+                    if name in location:
+                        # Check for the exact word or the abbreviation bounded by non-word characters or start/end of string
+                        if re.search(r'\b' + re.escape(name) + r'\b', location):
+                            states_found.append(key)
+                            break
+            return location, ', '.join(states_found), postcode
         def parse_years_in_role(role_str: str) -> str:
             if 'Less than 1' in role_str:
                 return '<1'
@@ -111,7 +106,7 @@ class Parsers(BaseParsers):
             'job_role': block[-9],
             'review_month': block[-8].split()[0],
             'review_year': int(block[-8].split()[1]),
-            'review_city': parse_location(block[-7])[0],
+            'review_location': parse_location(block[-7])[0],
             'review_state': parse_location(block[-7])[1],
             'review_postcode': parse_location(block[-7])[2],
             'years_in_role': parse_years_in_role(block[-6]),
