@@ -101,14 +101,15 @@ class Parsers(BaseParsers):
             ('management_rating', 'Management'),
             ('diversity_equal_opportunity_rating', 'Diversity & equal opportunity')
         ]
+        location_data = parse_location(block[-7])
         parsed_data = {key: int(block[block.index(val)+2][0] if isinstance(val, str) else block[val][0]) for key, val in ratings}
         parsed_data.update({
             'job_role': block[-9],
             'review_month': block[-8].split()[0],
             'review_year': int(block[-8].split()[1]),
-            'review_location': parse_location(block[-7])[0],
-            'review_state': parse_location(block[-7])[1],
-            'review_postcode': parse_location(block[-7])[2],
+            'review_location': location_data[0],
+            'review_states': location_data[1],
+            'review_postcode': location_data[2],
             'years_in_role': parse_years_in_role(block[-6]),
             'employment_status': 'Former' if 'former' in block[-6].lower() else 'Current' if 'current' in block[-6].lower() else '',
             'review_title': block[-5],
