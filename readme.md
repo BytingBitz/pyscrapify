@@ -7,13 +7,14 @@ Note: Please ensure you read and understand the disclaimer contained within this
 
 **PyScrapify** is a robust web scraping framework built upon Selenium and BeautifulSoup. It simplifies the process of scraping data into a CSV format while providing comprehensive error handling. The framework is designed to streamline the creation of new web scrapers and leverage common scraping functionalities centrally, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
 
-Scrapers have three key functions, Validating, Parsing, and Navigating. The data Parser class forms the core logic of PyScrapify and is built to extract data based on three key assumptions: 
+Scrapers have three key functions, Validating, Parsing, and Navigating. The data Parser class forms the core logic of PyScrapify and is built to extract data based on four key assumptions: 
 
 1. We can enter a given website at configured entry urls. 
-2. We can create a global rule for converting each entry url and each of any subpages to a list of strings. 
-3. We can write rules to spot and extract relevant sublists of data (data blocks) from that list of strings.
+2. We can create a function for converting each entry url and each of its subpages to a list of strings that includes desired data. 
+3. We can regex match a string that when present indicates the presence of a desired block of strings.
+4. We can expect the blocks of string we are extracting to be of a common format and length.
 
-The core execution flow is initiated through scraper_controller.py, triggered via the launcher.py command-line interface. We hope you enjoy using PyScrapify, feedback is very much appreciated!
+The core execution flow is initiated through `scraper_controller.py`, triggered via the `launcher.py` command-line interface.
 
 ***
 # Usage:
@@ -42,23 +43,30 @@ To use an existing scraper, follow these steps:
 
 ## Creating a New Scraper:
 
-Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for the BaseScraper.py classes that specify expected values and implement expected methods.
+Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for the BaseScraper.py classes that specify expected values and implement expected methods. See an example implementation in the `Seek.py` scraper.
 
 ### Validators:
 
+Implementing the scraper specific validator value and method below is recommended, though is not required. At the risk of bad data, bad urls, and unexpected errors, you can pass a url_pattern for any string and define validate_data_block to just pass.
+
 Values:
 
-* url_pattern: defined regex pattern to match to valid entry URLs. This pattern is used to verify all entry URLs in the configuration JSON.
+* `url_pattern`: regex pattern to match to valid entry URLs. This pattern is used to verify all entry URLs in the configuration JSON.
 
 Methods:
 
-* validate_data_block: function that validates that an extracted data block is as we expect, you should raise a SE.UnexpectedData(message) error if validation fails.
+* `validate_data_block`: function that validates that an extracted data block is as expected, you should raise a SE.UnexpectedData('message') error if validation fails.
 
 ### Parsers:
 
+Implementing the scraper specific parser values and methods is required. 
 Values:
 
-* 
+* `browser_lang`: language code string to be used by Selenium Chrome Driver browser session. See available language codes here: https://cloud.google.com/speech-to-text/docs/languages.
+* `text_pattern`: regex pattern to match to strings in a list of strings extracted from page source. Should match all locations that have a block of relevant data.
+* `text_idx`: integer value for howmany indexs into a data block the text_pattern string is expected to be.
+* `data_length`: integer value for howmany indexs long a data block of relevant strings is expected to be. 
+
 
 Methods:
 
@@ -68,9 +76,7 @@ Methods:
 
 # Contribution:
 
-We welcome new ideas and contributions. Our goal is to minimise the complexity traditionally involved in creating Python-based web scrapers by centralising common functionalities and abstracting scraper-specific logic through easy-to-implement methods and variables.
-
-If you have ideas or wish to implement features, please open an issue.
+We welcome new ideas and contributions. If you have ideas or wish to implement features, please open an issue.
 
 # Disclaimer:
 
@@ -98,14 +104,15 @@ Link: https://github.com/McJeffr
 
 It is hoped this repository can serve as a robust framework that enables easier setup of responsible scraping activities. We will continue to work on resolving bugs and improving the functionality of the core framework. Additionally, where appropriate, we will work to repair scrapers added to the official repository. Here are some goals for future versions:
 
-Roadmap to v1.1
+Roadmap to `v1.1`
 
 * Ensure Linux and Windows compatibility
 * Move to more robust dependency manager
   
-Roadmap to v1.2
+Roadmap to `v1.2`
 
 * Explore making pyscrapify a pip package
+* Explore approaches to simplify the creation of new scrapers
 
 ***
 # License:

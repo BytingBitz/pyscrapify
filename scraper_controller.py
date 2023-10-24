@@ -112,5 +112,5 @@ def scrape_launch(config_file: str, output_name: str, settings: Settings):
         if isinstance(e, (NotImplementedError, SE.UnexpectedData, SE.BadScraper, SE.NavigationFail)):
             Log.trace(e.__traceback__)
     except Exception as e:
-        Log.error(f'Unexpected error: could be internet...\nscraper:{config.scraper_name} {type(e).__name__}\n{e}')
+        Log.error(f'Unexpected error, could be internet...\nscraper:{config.scraper_name} {type(e).__name__}\n{e}')
         Log.trace(e.__traceback__)
