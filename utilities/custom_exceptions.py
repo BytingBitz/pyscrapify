@@ -11,6 +11,9 @@ class ScraperExceptions:
     class InvalidConfigFile(Exception):
         ''' Exception: JSON file was not valid. '''
         pass
+    class BadSettings(Exception):
+        ''' Exception: The settings.yml file has wrong type value. '''
+        pass
     class UnexpectedData(Exception):
         ''' Exception: Scraped data was not as Scraper class expected. '''
         pass
@@ -51,6 +54,7 @@ class ScraperExceptions:
             try:
                 return func(*args, **kwargs)
             except (StaleElementReferenceException, TimeoutException, NoSuchElementException) as e:
+                Log.warn(f'Navigation failed, retrying: {fails}')
                 fails += 1
                 if fails >= 5:
                     raise ScraperExceptions.NavigationFail(e)

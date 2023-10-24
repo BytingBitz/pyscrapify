@@ -10,11 +10,12 @@ from requests.exceptions import ChunkedEncodingError
 
 # Internal Dependencies
 from utilities.logger_formats import Log
+from utilities.settings import Settings
 
 class BrowserManager:
-    def __init__(self, language: str, header: bool = False, logging: bool = False):
-        self.header = header
-        self.logging = logging
+    def __init__(self, language: str, settings: Settings):
+        self.header = settings.SELENIUM_HEADER
+        self.logging = settings.SELENIUM_LOGGING
         self.language = language
     def create_browser(self) -> WebDriver:
         ''' Returns: Created Selenium Chrome browser session. '''

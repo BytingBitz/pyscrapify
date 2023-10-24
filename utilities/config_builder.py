@@ -11,11 +11,7 @@ from utilities.generic_validators import GenericValidators
 
 class Config:
     ''' Purpose: Load specified scrape_config contents. '''
-    def __init__(self, config_file: str, output_name: str, data_strict: bool, selenium_header: bool, selenium_logging: bool):
-        self.output_name = output_name
-        self.data_strict = data_strict
-        self.selenium_header = selenium_header
-        self.selenium_logging = selenium_logging
+    def __init__(self, config_file: str):
         self.orgs = []
         config_path = f'scrape_configs/{config_file}'
         GenericValidators.validate_file_exists(config_path)

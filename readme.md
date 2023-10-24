@@ -9,21 +9,7 @@ REWRITE IN PROGRESS
 
 Roadmap to v1.0
 
-* Implement scraper abstract method error handling
-* Implement robust timeout handling/retry
 * Complete readme.md file
-* Update settings.py loading/local untracked version
-* Fully implement data_strict, allow entry fails
-* Validate data blocks don't overlap
-
-Roadmap to v1.1
-
-* Ensure Linux and Windows compatibility
-* Move to more robust dependency manager
-  
-Roadmap to v1.2
-
-* Explore making pyscrapify a package
 
 ***
 # Usage:
@@ -55,7 +41,16 @@ Link: https://github.com/McJeffr
 ***
 # Future:
 
-It is hoped this repository can serve as a robust framework that enables easier setup of responsible scraping activities. We will continue to work on resolving bugs and improving the functionality of the core framework. Additionally, where appropriate, we will work to repair scrapers added to the official repository.
+It is hoped this repository can serve as a robust framework that enables easier setup of responsible scraping activities. We will continue to work on resolving bugs and improving the functionality of the core framework. Additionally, where appropriate, we will work to repair scrapers added to the official repository. Here are some goals for future versions:
+
+Roadmap to v1.1
+
+* Ensure Linux and Windows compatibility
+* Move to more robust dependency manager
+  
+Roadmap to v1.2
+
+* Explore making pyscrapify a package
 
 ***
 # License:

@@ -7,7 +7,8 @@ import re, os, sys
 # Internal Dependencies
 from scraper_controller import scrape_launch
 from utilities.logger_formats import Log
-from settings import CONFIG_DIRECTORY, OUTPUT_DIRECTORY, PICK_OUTPUT_NAME, GENERATED_OUTPUT_NAME_BASE
+from utilities.settings import Settings
+from utilities.custom_exceptions import ScraperExceptions as SE
 
 def list_filenames(directory: str, exclude: list[str] = [], include_extensions: bool = False) -> list[str]:
     ''' Returns: A list of strings of filenames for a specified directory,
@@ -42,12 +43,12 @@ def prompt_filename(directory: str = None, prompt: str = None) -> str:
         else:
             return filename
 
-def uniquify(base_filename: str):
+def uniquify(base_filename: str, out_directory: str):
     ''' Returns: base_filename plus end "_#" where the # number has been 
         incremented until it does not already exist as an output file name. '''
     counter = 0
     filename = f'{base_filename}_{counter}'
-    existing_outputs = list_filenames(OUTPUT_DIRECTORY)
+    existing_outputs = list_filenames(out_directory)
     while filename in existing_outputs or f'{filename}.dump' in existing_outputs:
         counter += 1
         filename = f'{base_filename}_{counter}'
@@ -72,18 +73,21 @@ def prompt_options(options: list[str], prompt: str = None) -> str:
 if __name__ == '__main__':
     try:
         Log.status('Preparing to launch scraper...')
-        if PICK_OUTPUT_NAME:
-            output_name = prompt_filename(OUTPUT_DIRECTORY, 'Please specify a scraper results filename')
+        settings = Settings()
+        if settings.PICK_OUTPUT_NAME:
+            output_name = prompt_filename(settings.OUTPUT_DIRECTORY, 'Please specify a scraper results filename')
         else:
-            output_name = uniquify(GENERATED_OUTPUT_NAME_BASE)
+            output_name = uniquify(settings.GENERATED_OUTPUT_NAME_BASE, settings.OUTPUT_DIRECTORY)
             Log.info(f'Generated output name: {output_name}')
-        scraper_options = list_filenames(CONFIG_DIRECTORY, ['.gitignore'], True)
+        scraper_options = list_filenames(settings.CONFIG_DIRECTORY, ['.gitignore'], True)
         if not scraper_options:
-            Log.alert(f'No available scraper configs. Create one at {CONFIG_DIRECTORY} first. ')
+            Log.alert(f'No available scraper configs. Create one at {settings.CONFIG_DIRECTORY} first. ')
             sys.exit()
         config_file = prompt_options(scraper_options, 'Please select a scraper configuration')
         Log.status('Calling scraper launcher...')
-        scrape_launch(config_file, output_name)
+        scrape_launch(config_file, output_name, settings)
     except KeyboardInterrupt:
         Log.alert('Keyboard interrupt, aborting...')
         sys.exit()
+    except SE.BadSettings as e:
+        Log.alert(f'{e.args[0]}')

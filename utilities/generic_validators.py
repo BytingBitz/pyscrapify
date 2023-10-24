@@ -36,12 +36,17 @@ class GenericValidators:
         if not name_pattern.match(name):
             raise SE.InvalidConfigFile(f'JSON contains invalid name format: {name}')
     @staticmethod
-    def validate_data_bounds(data_bounds: Dict[str, int], texts: List[List]):
+    def validate_data_bound(data_bound: Dict[str, int], texts: List[List]):
         ''' Purpose: Validates if the data is within list bounds. '''
-        if not (data_bounds['start_idx'] >= 0 and data_bounds['end_idx'] < len(texts)):
+        if not (data_bound['start_idx'] >= 0 and data_bound['end_idx'] < len(texts)):
             raise SE.UnexpectedData(f'Expected data block goes out of bounds:\n{texts}')
     @staticmethod
     def validate_data_count(actual_count: int, expected_count: int):
         ''' Purpose: Validates if number scraped data blocks matches expected number. '''
         if actual_count != expected_count:
             raise SE.UnexpectedData(f'Expected {expected_count}, got {actual_count}...')
+    @staticmethod
+    def validate_for_overlap(data_bounds: List[Dict[str, int]], new_data_bound: Dict[str, int]):
+        ''' Purpose: Validates if there is any overlaps in the ranges of any data bounds. '''
+        if any(existing_bound['start_idx'] < new_data_bound['end_idx'] and existing_bound['end_idx'] > new_data_bound['start_idx'] for existing_bound in data_bounds):
+            raise SE.UnexpectedData("Overlapping data bounds detected.")
