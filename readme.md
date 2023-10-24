@@ -3,20 +3,75 @@
 ***
 # About:
 
-Please ensure you read and understand the disclaimer contained within this readme file prior to any use of this repository.
+Note: Please ensure you read and understand the disclaimer contained within this readme file prior to any use of this repository.
 
-REWRITE IN PROGRESS
+**PyScrapify** is a robust web scraping framework built upon Selenium and BeautifulSoup. It simplifies the process of scraping data into a CSV format while providing comprehensive error handling. The framework is designed to streamline the creation of new web scrapers and leverage common scraping functionalities centrally, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
 
-Roadmap to v1.0
+Scrapers have three key functions, Validating, Parsing, and Navigating. The data Parser class forms the core logic of PyScrapify and is built to extract data based on three key assumptions: 
 
-* Complete readme.md file
+1. We can enter a given website at configured entry urls. 
+2. We can create a global rule for converting each entry url and each of any subpages to a list of strings. 
+3. We can write rules to spot and extract relevant sublists of data (data blocks) from that list of strings.
+
+The core execution flow is initiated through scraper_controller.py, triggered via the launcher.py command-line interface. We hope you enjoy using PyScrapify, feedback is very much appreciated!
 
 ***
 # Usage:
 
-Pending
+This usage section covers configurations for existing scrapers, implementing new scrapers, and available framework settings.
+
+## Using an Existing Scraper:
+
+To use an existing scraper, follow these steps:
+
+1. **Create a Configuration File**: Go to the `scrape_configs` directory and create a new JSON file. This file must contain:
+    - The `scraper` key with the name of the scraper you want to use (check the `scrapers` directory for available options, BaseScraper is the parent class).
+    - The `entries` key with an object of names and entry URLs for data extraction.
+
+    Example configuration:
+    ```json
+    {
+        "scraper": "Seek",
+        "entries": {
+            "Target Australia": "https://www.seek.com.au/companies/target-432304/reviews"
+        }
+    }
+    ```
+
+2. **Run the Scraper**: Execute `launcher.py` and select the configuration file you created when prompted in the command line interface. The scraper will process each entry URL defined in your configuration file.
+
+## Creating a New Scraper:
+
+Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for the BaseScraper.py classes that specify expected values and implement expected methods.
+
+### Validators:
+
+Values:
+
+* url_pattern: defined regex pattern to match to valid entry URLs. This pattern is used to verify all entry URLs in the configuration JSON.
+
+Methods:
+
+* validate_data_block: function that validates that an extracted data block is as we expect, you should raise a SE.UnexpectedData(message) error if validation fails.
+
+### Parsers:
+
+Values:
+
+* 
+
+Methods:
+
+* 
 
 ***
+
+# Contribution:
+
+We welcome new ideas and contributions. Our goal is to minimise the complexity traditionally involved in creating Python-based web scrapers by centralising common functionalities and abstracting scraper-specific logic through easy-to-implement methods and variables.
+
+If you have ideas or wish to implement features, please open an issue.
+
 # Disclaimer:
 
 This tool has been developed solely for educational, research, and public interest purposes. Every user is advised that they are responsible for:
@@ -50,7 +105,7 @@ Roadmap to v1.1
   
 Roadmap to v1.2
 
-* Explore making pyscrapify a package
+* Explore making pyscrapify a pip package
 
 ***
 # License:

@@ -47,6 +47,6 @@ class GenericValidators:
             raise SE.UnexpectedData(f'Expected {expected_count}, got {actual_count}...')
     @staticmethod
     def validate_for_overlap(data_bounds: List[Dict[str, int]], new_data_bound: Dict[str, int]):
-        ''' Purpose: Validates if there is any overlaps in the ranges of any data bounds. '''
+        ''' Purpose: Validates if there is no overlaps in the ranges of any data bounds. '''
         if any(existing_bound['start_idx'] < new_data_bound['end_idx'] and existing_bound['end_idx'] > new_data_bound['start_idx'] for existing_bound in data_bounds):
             raise SE.UnexpectedData("Overlapping data bounds detected.")
