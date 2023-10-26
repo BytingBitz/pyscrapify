@@ -93,7 +93,7 @@ Creating a new scraper is a more involved process, requiring coding. To first gi
 >* `wait_for_entry`: Method for dynamicly or staticly waiting for a given entry URL to finish loading desired data.
 >* `wait_for_page`: Method for dynamically or staticly waiting for a given entry URL subpage to finish loading desired data.
 
-To create a new scraper, following these steps:
+To create a new scraper, follow these steps:
 
 1. **Create New Scraper**: Go to the `scrapers` directory and create a new Python file, populate the file with a base template. You may also want to create a test JSON configuration (where the new scraper python filename is the scraper name) and enable `SELENIUM_HEADER` in the `settings.yml` to assist in further development. 
 
