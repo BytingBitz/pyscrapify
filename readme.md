@@ -50,36 +50,36 @@ To use an existing scraper, follow these steps:
 
 Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for the BaseScraper.py classes that specify expected values and implement expected methods. See an example implementation in the `Seek.py` scraper - or at the end of this section.
 
->### Validators:
+>**Validators**:
+>
+>Implementing the scraper specific validator value and method below is recommended, though is not required. At the risk of bad data, bad urls, and unexpected errors, you can pass a `url_pattern` for any string and define `validate_data_block` to just pass.
+>
+>* `url_pattern`: Regex pattern to match to valid entry URLs. This pattern is used to verify all entry URLs in the configuration JSON.
+>
+>* `validate_data_block`: Method that validates that an extracted data block is as expected, you should raise a SE.UnexpectedData('message') error if validation fails.
 
-Implementing the scraper specific validator value and method below is recommended, though is not required. At the risk of bad data, bad urls, and unexpected errors, you can pass a `url_pattern` for any string and define `validate_data_block` to just pass.
+>**Parsers**:
 
-* `url_pattern`: Regex pattern to match to valid entry URLs. This pattern is used to verify all entry URLs in the configuration JSON.
-
-* `validate_data_block`: Method that validates that an extracted data block is as expected, you should raise a SE.UnexpectedData('message') error if validation fails.
-
->### Parsers:
-
-Implementing the scraper specific parser values and methods is required. 
+>Implementing the scraper specific parser values and methods is required. 
 Values:
+>
+>* `browser_lang`: Language code string to be used by Selenium Chrome Driver browser session. See available language codes here: https://cloud.google.com/speech-to-text/docs/languages.
+>* `text_pattern`: Regex pattern to match to strings in a list of strings extracted from page source. Should match all locations that have a block of relevant data.
+>* `text_idx`: Integer value for howmany indexs into a data block the text_pattern string is expected to be.
+>* `data_length`: Integer value for howmany indexs long a data block of relevant strings is expected to be. 
+>
+>* `extract_total_count`: Method that should return the number of data blocks expected to be extracted from a given entry URL and associated subpages. Value is used for validation.
+>* `extract_page_text`: Method for converting a entry URL page or subpage source HTML soup into a list of strings. Ensure this list contains all desired data for further processing.
+>* `parse_data_block`: Method that takes in a list of strings for one data block and parses the data to a dictionary of integers or strings where dictionary keys are the desired CSV data column names. 
 
-* `browser_lang`: Language code string to be used by Selenium Chrome Driver browser session. See available language codes here: https://cloud.google.com/speech-to-text/docs/languages.
-* `text_pattern`: Regex pattern to match to strings in a list of strings extracted from page source. Should match all locations that have a block of relevant data.
-* `text_idx`: Integer value for howmany indexs into a data block the text_pattern string is expected to be.
-* `data_length`: Integer value for howmany indexs long a data block of relevant strings is expected to be. 
-
-* `extract_total_count`: Method that should return the number of data blocks expected to be extracted from a given entry URL and associated subpages. Value is used for validation.
-* `extract_page_text`: Method for converting a entry URL page or subpage source HTML soup into a list of strings. Ensure this list contains all desired data for further processing.
-* `parse_data_block`: Method that takes in a list of strings for one data block and parses the data to a dictionary of integers or strings where dictionary keys are the desired CSV data column names. 
-
->### Navigators:
-
-Implementing the navigator specific methods is required. It is recommended to implement dynamic waits for the wait methods though you can also use static sleep statement waits. If not scraping multiple subpages, `check_next_page` can always return False, `grab_next_page` and `wait_for_page` can always pass, though you still need `wait_for_page`.
-
-* `check_next_page`: Method for determining if the current entry page has a next subpage that needs to be navigated to.
-* `grab_next_page`: Method for interacting with the current Selenium browser session to navigate to the next subpage of a given entry page.
-* `wait_for_entry`: Method for dynamicly or staticly waiting for a given entry URL to finish loading desired data.
-* `wait_for_page`: Method for dynamically or staticly waiting for a given entry URL subpage to finish loading desired data.
+>**Navigators**:
+>
+>Implementing the navigator specific methods is required. It is recommended to implement dynamic waits for the wait methods though you can also use static sleep statement waits. If not scraping multiple subpages, `check_next_page` can always return False, `grab_next_page` and `wait_for_page` can always pass, though you still need `wait_for_page`.
+>
+>* `check_next_page`: Method for determining if the current entry page has a next subpage that needs to be navigated to.
+>* `grab_next_page`: Method for interacting with the current Selenium browser session to navigate to the next subpage of a given entry page.
+>* `wait_for_entry`: Method for dynamicly or staticly waiting for a given entry URL to finish loading desired data.
+>* `wait_for_page`: Method for dynamically or staticly waiting for a given entry URL subpage to finish loading desired data.
 
 ### Create Scraper:
 
