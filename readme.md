@@ -5,12 +5,12 @@
 
 > Note: Please ensure you read and understand the disclaimer contained within this readme file prior to any use of this repository.
 
-**PyScrapify** is a robust web scraping framework developed in Python `3.10.2` built ontop of [Selenium](https://github.com/SeleniumHQ/selenium) and [BeautifulSoup](https://github.com/wention/BeautifulSoup4). It simplifies the process of scraping data into a CSV format whilst providing comprehensive error handling. The framework is designed to streamline the creation of new web scrapers by implementing scraper control logic out of the box, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
+**PyScrapify** is a robust web scraping framework developed in Python `3.10.2` built ontop of [Selenium](https://github.com/SeleniumHQ/selenium) and [BeautifulSoup](https://github.com/wention/BeautifulSoup4). The framework is designed to streamline the creation of new web scrapers by implementing scraper control logic out of the box, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
 
-Scrapers have three key elements: Validating, Parsing, and Navigating. The data Parser class forms the core logic of PyScrapify and is built to extract data based on four key assumptions: 
+Scrapers have three key elements: Validators, Parsers, and Navigators. The data Parsers class forms the core logic of PyScrapify and is built to extract data based on four key assumptions: 
 
 1. We can enter a given website at configured entry URLs. 
-2. We can create a function for converting each entry URL and each of its subpages to a list of strings that includes desired data. 
+2. We can create a function for converting each entry URL and each of its subpages source HTML soup into a list of strings that includes desired data. 
 3. We can regex match a string that when present indicates the presence of a desired data block, which is a subset of the list of strings.
 4. We can expect the data blocks we are extracting to be of a common format and length.
 
@@ -19,15 +19,15 @@ The core execution flow is initiated through `scraper_controller.py`, triggered 
 ***
 # Usage:
 
-This usage section covers configurations for existing scrapers, implementing new scrapers, and available framework settings.
+This usage section covers installation, settings, configuration of existing scrapers, and implementing new scrapers.
 
 ## Installation:
 
-Currently this repository just uses a requirements.txt for dependency management. It is recommended to create a virtual environment, then run `pip install -r requirements.txt` inside that virtual environment. You will also need Chrome installed on your computer.
+Currently this repository uses a `requirements.txt` for dependency management. It is recommended to create a virtual environment, then run `pip install -r requirements.txt` inside that virtual environment. You also need Chrome installed on your computer.
 
 ## Configuration:
 
-On first usage of the scraper via `launcher.py` a `settings.yml` file will be created with default configuration loaded. Modifying the values in this YML file will override the default configurations defined and loaded in the utilities [settings.py](https://github.com/Jamal135/pyscrapify/blob/main/utilities/settings.py). See key configuration settings below:
+On first usage of the scraper via `launcher.py` a `settings.yml` file will be created in the repository root directory with a default configuration loaded. Modifying the values in this YML file will override the default configurations defined in the utilities [settings.py](https://github.com/Jamal135/pyscrapify/blob/main/utilities/settings.py). See key configuration settings below:
 
 >**Settings**:
 >
@@ -61,11 +61,11 @@ To use an existing scraper, follow these steps:
 
 ## Creating a New Scraper:
 
-Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for the [BaseScraper.py](https://github.com/Jamal135/pyscrapify/blob/main/scrapers/BaseScraper.py) classes that specify expected values and implement expected methods:
+Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for [BaseScraper.py](https://github.com/Jamal135/pyscrapify/blob/main/scrapers/BaseScraper.py) classes that specify expected values and implement expected methods:
 
 >**Validators**:
 >
->Implementing the scraper specific validator value and method below is recommended, though is not required. At the risk of bad data, bad URLs, and unexpected errors, you can pass a `url_pattern` for any string and define `validate_data_block` to just pass.
+>Implementing the scraper specific Validators value and method below is recommended, though is not required. At the risk of bad data, bad URLs, and unexpected errors, you can pass a `url_pattern` for any string and define `validate_data_block` to just pass.
 >
 >* `url_pattern`: Regex pattern to match to valid entry URLs. This pattern is used to verify all entry URLs in the configuration JSON.
 >
@@ -73,21 +73,20 @@ Creating a new scraper is a more involved process, requiring coding. To first gi
 
 >**Parsers**:
 >
->Implementing the scraper specific parser values and methods is required. 
-Values:
+>Implementing the scraper specific Parsers values and methods is required.
 >
 >* `browser_lang`: Language code string to be used by Selenium Chrome Driver browser session. See available [language codes](https://cloud.google.com/speech-to-text/docs/languages).
->* `text_pattern`: Regex pattern to match to strings in a list of strings extracted from page source. Should match all locations that have a block of relevant data.
+>* `text_pattern`: Regex pattern to match to strings in a list of strings extracted from page source HTML soup. Should match all locations that have a block of relevant data.
 >* `text_idx`: Integer value for howmany indexs into a data block the text_pattern string is expected to be.
 >* `data_length`: Integer value for howmany indexs long a data block of relevant strings is expected to be. 
 >
->* `extract_total_count`: Method that should return the number of data blocks expected to be extracted from a given entry URL and associated subpages. Value is used for validation.
->* `extract_page_text`: Method for converting a entry URL page or subpage source HTML soup into a list of strings. Ensure this list contains all desired data for further processing.
+>* `extract_total_count`: Method for returning the number of data blocks expected to be extracted from a given entry URL and associated subpages. Value is used for validation.
+>* `extract_page_text`: Method for converting a entry URL page or subpage source HTML soup into a list of strings. Ensure this list contains all desired page data blocks for further processing.
 >* `parse_data_block`: Method that takes in a list of strings for one data block and parses the data to a dictionary of integers or strings where dictionary keys are the desired CSV data column names. 
 
 >**Navigators**:
 >
->Implementing the navigator specific methods is required. It is recommended to implement dynamic waits for the wait methods though you can also use static sleep statement waits. If not scraping multiple subpages, `check_next_page` can always return False, `grab_next_page` and `wait_for_page` can always pass, though you still need `wait_for_page`.
+>Implementing the scraper specific Navigators methods is required. It is recommended to implement dynamic waits for the wait methods though you can also use static sleep statement waits. If not scraping multiple subpages, `check_next_page` can always return False, `grab_next_page` and `wait_for_page` can always pass, though you still require `wait_for_entry`.
 >
 >* `check_next_page`: Method for determining if the current entry page has a next subpage that needs to be navigated to.
 >* `grab_next_page`: Method for interacting with the current Selenium browser session to navigate to the next subpage of a given entry page.
@@ -96,7 +95,7 @@ Values:
 
 To create a new scraper, following these steps:
 
-1. **Create New Scraper**: Go to the `scrapers` directory and create a new Python file, populate the file with a base template. You may also want to create a test JSON configuration (where the new scraper python filename is the scraper name). It is also recommended to enable `SELENIUM_HEADER` in the `settings.yml` to assist in further development - more details in Settings section. 
+1. **Create New Scraper**: Go to the `scrapers` directory and create a new Python file, populate the file with a base template. You may also want to create a test JSON configuration (where the new scraper python filename is the scraper name) and enable `SELENIUM_HEADER` in the `settings.yml` to assist in further development. 
 
     Example template:
 
@@ -148,7 +147,7 @@ To create a new scraper, following these steps:
             pass
     ```
 
-2. **Develop Scraper Functionality**: Implement all methods and define all values for each of the Validators, Parsers, and Navigators classes. It is recommended to regularly test the scraper as you make progress, this can also assist in figuring out what should be implemented next.
+2. **Develop Scraper Functionality**: Implement all methods and define all values for each of the Validators, Parsers, and Navigators classes. It is recommended to regularly test the scraper as you make progress, this can also assist in providing order to what you implement.
 
 Access an example implementation here: [Seek.py](https://github.com/Jamal135/pyscrapify/blob/main/scrapers/Seek.py).
 
@@ -173,9 +172,9 @@ Website providers with concerns about the scraping functionality contained in th
 ***
 # Acknowledgements:
 
-This project was originally just an employee employer review scraper for Indeed and Seek. At that time, this project was inspired and to an extent guided by the work of [Tim Sauchuk](https://github.com/tim-sauchuk) on a now broken [Indeed.com scrape tool](https://github.com/tim-sauchuk/Indeed-Company-Review-Scraper).
+This project was originally just an employee employer review scraper for Indeed and Seek. At that time, this project was inspired by the work of [Tim Sauchuk](https://github.com/tim-sauchuk) on a now broken [Indeed.com scrape tool](https://github.com/tim-sauchuk/Indeed-Company-Review-Scraper).
 
-Additionally, [McJeffr](https://github.com/McJeffr) provided very valuable feedback that greatly helped in guiding this project originally.
+Additionally, [McJeffr](https://github.com/McJeffr) provided valuable feedback that helped in guiding this project originally.
 
 ***
 # Future:
@@ -195,9 +194,6 @@ In future I will continue to work on resolving bugs and improving the functional
 ***
 # License:
 
-Copyright (c) [@Jamal135]
+Copyright (c) [@Jamal135](https://github.com/Jamal135)
 
 MIT License
-
-<!-- github-only -->
-[@Jamal135]: https://github.com/Jamal135
