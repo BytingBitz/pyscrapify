@@ -23,8 +23,6 @@ class Settings:
         # How many seconds to sleep to minimize website strain.
         self.RATE_LIMIT_DELAY = 2  # Type: int, Default: 2
         # How many seconds to wait before webdriver timeout.
-        self.SELENIUM_TIMEOUT = 40  # Type: int, Default: 40
-        # If true, enables selenium logs to stdout.
         self.SELENIUM_LOGGING = False  # Type: bool, Default: False
         # If true, sets selenium browser to not be in headless mode.
         self.SELENIUM_HEADER = False  # Type: bool, Default: False

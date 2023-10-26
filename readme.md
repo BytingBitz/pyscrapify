@@ -3,9 +3,9 @@
 ***
 # About:
 
-> *Note*: Please ensure you read and understand the disclaimer contained within this readme file prior to any use of this repository.
+> Note: Please ensure you read and understand the disclaimer contained within this readme file prior to any use of this repository.
 
-**PyScrapify** is a robust web scraping framework built ontop of Selenium and BeautifulSoup. It simplifies the process of scraping data into a CSV format whilst providing comprehensive error handling. The framework is designed to streamline the creation of new web scrapers by implementing scraper control logic out of the box, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
+**PyScrapify** is a robust web scraping framework developed in Python `3.10.2` built ontop of [Selenium](https://github.com/SeleniumHQ/selenium) and [BeautifulSoup](https://github.com/wention/BeautifulSoup4). It simplifies the process of scraping data into a CSV format whilst providing comprehensive error handling. The framework is designed to streamline the creation of new web scrapers by implementing scraper control logic out of the box, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
 
 Scrapers have three key elements: Validating, Parsing, and Navigating. The data Parser class forms the core logic of PyScrapify and is built to extract data based on four key assumptions: 
 
@@ -23,10 +23,20 @@ This usage section covers configurations for existing scrapers, implementing new
 
 ## Installation:
 
-Currently this repository just uses a requirements.txt for dependency management. It is recommended to create a virtual environment, then `pip install -r requirements.txt` inside that virtual environment. You will also need Chrome installed on your computer.
+Currently this repository just uses a requirements.txt for dependency management. It is recommended to create a virtual environment, then run `pip install -r requirements.txt` inside that virtual environment. You will also need Chrome installed on your computer.
 
 ## Configuration:
 
+On first usage of the scraper via `launcher.py` a `settings.yml` file will be created with default configuration loaded. Modifying the values in this YML file will override the default configurations defined and loaded in the utilities [settings.py](https://github.com/Jamal135/pyscrapify/blob/main/utilities/settings.py). See key configuration settings below:
+
+>**Settings**:
+>
+>* `PICK_OUTPUT_NAME`: Boolean True or False, if True name is generated, if False `launcher.py` will prompt you in CLI to enter a name.
+>* `GENERATED_OUTPUT_NAME_BASE`: String name for the scraper result outputs. A number will be added to the end to keep results unique.
+>* `RATE_LIMIT_DELAY`: Integer value for a sleep delay in seconds to minimise scraping activity impacts. See disclaimer before changing.
+>* `SELENIUM_LOGGING`: Boolean True or False, if True Selenium specific logs will be printed to CLI as they occur. Useful for some troubleshooting.
+>* `SELENIUM_HEADER`: Boolean True or False, if True Selenium will run with a header (browser you can see). Very useful for troubleshooting and scraper development.
+>* `DATA_STRICT`: Boolean True or False, if True the `scraper_controller.py` will allow some unexpected data and try work with it, whilst logging a warning. This risks the integrity of your data but may fix some issues.
 
 ## Using an Existing Scraper:
 
@@ -163,7 +173,7 @@ Website providers with concerns about the scraping functionality contained in th
 ***
 # Acknowledgements:
 
-This project was originally just an employee employer review scraper for Indeed and Seek. At that time, this project was inspired and to an extent guided by the work of [Tim Sauchuk](https://github.com/tim-sauchuk) on a now broken Indeed.com [scrape tool](https://github.com/tim-sauchuk/Indeed-Company-Review-Scraper).
+This project was originally just an employee employer review scraper for Indeed and Seek. At that time, this project was inspired and to an extent guided by the work of [Tim Sauchuk](https://github.com/tim-sauchuk) on a now broken [Indeed.com scrape tool](https://github.com/tim-sauchuk/Indeed-Company-Review-Scraper).
 
 Additionally, [McJeffr](https://github.com/McJeffr) provided very valuable feedback that greatly helped in guiding this project originally.
 
