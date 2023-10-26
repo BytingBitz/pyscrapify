@@ -36,7 +36,7 @@ On first usage of the scraper via `launcher.py` a `settings.yml` file will be cr
 >* `RATE_LIMIT_DELAY`: Integer value for a sleep delay in seconds to minimise scraping activity impacts. See disclaimer before changing.
 >* `SELENIUM_LOGGING`: Boolean True or False, if True Selenium specific logs will be printed to CLI as they occur. Useful for some troubleshooting.
 >* `SELENIUM_HEADER`: Boolean True or False, if True Selenium will run with a header (browser you can see). Very useful for troubleshooting and scraper development.
->* `DATA_STRICT`: Boolean True or False, if True the `scraper_controller.py` will allow some unexpected data and try work with it, whilst logging a warning. This risks the integrity of your data but may fix some issues.
+>* `DATA_STRICT`: Boolean True or False, if False the `scraper_controller.py` will allow some unexpected data and try work with it, whilst logging a warning. This risks the integrity of your data but may fix some issues.
 
 ## Using an Existing Scraper:
 
