@@ -82,7 +82,7 @@ class BaseNavigators(ABC):
     # Expected sibling Navigators class functions:
     @abstractmethod
     def check_next_page(self, driver: WebDriver) -> bool:
-        ''' Returns: Boolean True or False if there is a next sybpage. '''
+        ''' Returns: Boolean True or False if there is a next subpage. '''
     @abstractmethod
     def grab_next_page(self, driver: WebDriver) -> WebElement:
         ''' Purpose: Navigates driver to the next subpage for scraping. '''
