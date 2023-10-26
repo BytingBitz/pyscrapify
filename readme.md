@@ -61,7 +61,7 @@ To use an existing scraper, follow these steps:
 
 ## Creating a New Scraper:
 
-Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for the BaseScraper.py classes that specify expected values and implement expected methods:
+Creating a new scraper is a more involved process, requiring coding. To first give some context to what you are doing when you implement a new scraper, you are defining siblings for the [BaseScraper.py](https://github.com/Jamal135/pyscrapify/blob/main/scrapers/BaseScraper.py) classes that specify expected values and implement expected methods:
 
 >**Validators**:
 >
