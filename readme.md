@@ -5,9 +5,9 @@
 
 > *Note*: Please ensure you read and understand the disclaimer contained within this readme file prior to any use of this repository.
 
-**PyScrapify** is a robust web scraping framework built upon Selenium and BeautifulSoup. It simplifies the process of scraping data into a CSV format while providing comprehensive error handling. The framework is designed to streamline the creation of new web scrapers by implementing scraper control logic out of the box, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
+**PyScrapify** is a robust web scraping framework built ontop of Selenium and BeautifulSoup. It simplifies the process of scraping data into a CSV format whilst providing comprehensive error handling. The framework is designed to streamline the creation of new web scrapers by implementing scraper control logic out of the box, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
 
-Scrapers have three key functions, Validating, Parsing, and Navigating. The data Parser class forms the core logic of PyScrapify and is built to extract data based on four key assumptions: 
+Scrapers have three key elements: Validating, Parsing, and Navigating. The data Parser class forms the core logic of PyScrapify and is built to extract data based on four key assumptions: 
 
 1. We can enter a given website at configured entry URLs. 
 2. We can create a function for converting each entry URL and each of its subpages to a list of strings that includes desired data. 
@@ -24,6 +24,9 @@ This usage section covers configurations for existing scrapers, implementing new
 ## Installation:
 
 Currently this repository just uses a requirements.txt for dependency management. It is recommended to create a virtual environment, then `pip install -r requirements.txt` inside that virtual environment. You will also need Chrome installed on your computer.
+
+## Configuration:
+
 
 ## Using an Existing Scraper:
 
@@ -56,14 +59,14 @@ Creating a new scraper is a more involved process, requiring coding. To first gi
 >
 >* `url_pattern`: Regex pattern to match to valid entry URLs. This pattern is used to verify all entry URLs in the configuration JSON.
 >
->* `validate_data_block`: Method that validates that an extracted data block is as expected, you should raise a SE.UnexpectedData('message') error if validation fails.
+>* `validate_data_block`: Method that validates that an extracted data block is as expected, you should raise a `SE.UnexpectedData('message')` error if validation fails.
 
 >**Parsers**:
 >
 >Implementing the scraper specific parser values and methods is required. 
 Values:
 >
->* `browser_lang`: Language code string to be used by Selenium Chrome Driver browser session. See available language codes here: https://cloud.google.com/speech-to-text/docs/languages.
+>* `browser_lang`: Language code string to be used by Selenium Chrome Driver browser session. See available [language codes](https://cloud.google.com/speech-to-text/docs/languages).
 >* `text_pattern`: Regex pattern to match to strings in a list of strings extracted from page source. Should match all locations that have a block of relevant data.
 >* `text_idx`: Integer value for howmany indexs into a data block the text_pattern string is expected to be.
 >* `data_length`: Integer value for howmany indexs long a data block of relevant strings is expected to be. 
@@ -83,7 +86,7 @@ Values:
 
 To create a new scraper, following these steps:
 
-1. Create a new Python file in the `scrapers` directory, populate the file with a base template. You may want to create a test JSON configuration (where the new scraper python filename is the scraper name). You may also want to enable SELENIUM_HEADER in the settings.yml to assist in further development (see Settings usage section). 
+1. **Create New Scraper**: Go to the `scrapers` directory and create a new Python file, populate the file with a base template. You may also want to create a test JSON configuration (where the new scraper python filename is the scraper name). It is also recommended to enable `SELENIUM_HEADER` in the `settings.yml` to assist in further development - more details in Settings section. 
 
     Example template:
 
@@ -135,7 +138,7 @@ To create a new scraper, following these steps:
             pass
     ```
 
-2. Implement all methods and define all values for each of the Validators, Parsers, and Navigators classes. It is recommended to regularly test the scraper as you make progress, this can also assist in figuring out what should be implemented next.
+2. **Develop Scraper Functionality**: Implement all methods and define all values for each of the Validators, Parsers, and Navigators classes. It is recommended to regularly test the scraper as you make progress, this can also assist in figuring out what should be implemented next.
 
 Access an example implementation here: [Seek.py](https://github.com/Jamal135/pyscrapify/blob/main/scrapers/Seek.py).
 
