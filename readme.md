@@ -155,7 +155,7 @@ Access an example implementation here: [Seek.py](https://github.com/Jamal135/pys
 
 # Contribution:
 
-We welcome new ideas and contributions. If you have ideas or wish to implement features, please open an issue.
+I welcome new ideas and contributions. If you have ideas or wish to implement features, please open an issue.
 
 # Disclaimer:
 
