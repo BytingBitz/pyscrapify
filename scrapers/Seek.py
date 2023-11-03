@@ -127,7 +127,7 @@ class Navigators(BaseNavigators):
         next_button = self.grab_next_button(driver)
         return next_button.get_attribute('tabindex') != '-1'
     
-    def grab_next_page(self, driver: WebDriver) -> bool:
+    def grab_next_page(self, driver: WebDriver) -> None:
         next_button = self.grab_next_button(driver)
         next_button.click()
         

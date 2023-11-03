@@ -84,7 +84,7 @@ class BaseNavigators(ABC):
     def check_next_page(self, driver: WebDriver) -> bool:
         ''' Returns: Boolean True or False if there is a next subpage. '''
     @abstractmethod
-    def grab_next_page(self, driver: WebDriver) -> WebElement:
+    def grab_next_page(self, driver: WebDriver) -> None:
         ''' Purpose: Navigates driver to the next subpage for scraping. '''
     @abstractmethod
     def wait_for_entry(self, driver: WebDriver) -> None:

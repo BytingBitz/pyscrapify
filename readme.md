@@ -137,7 +137,7 @@ To create a new scraper, follow these steps:
         def check_next_page(self, driver: WebDriver) -> bool:
             pass
         
-        def grab_next_page(self, driver: WebDriver) -> bool:
+        def grab_next_page(self, driver: WebDriver) -> None:
             pass
             
         def wait_for_entry(self, driver: WebDriver) -> None:
