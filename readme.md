@@ -3,7 +3,7 @@
 ***
 # About:
 
-> Note: Please ensure you read and understand the disclaimer contained within this readme file prior to any use of this repository.
+> Note: It is recommended you understand the disclaimer contained within this readme.md file prior to any use of this web scraping framework.
 
 **PyScrapify** is a robust web scraping framework developed in Python `3.10.2` built ontop of [Selenium](https://github.com/SeleniumHQ/selenium) and [BeautifulSoup](https://github.com/wention/BeautifulSoup4). The framework is designed to streamline the creation of new web scrapers by implementing scraper control logic out of the box, reducing the redundant boilerplate code often associated with building Python-based web scrapers from scratch.
 
@@ -159,15 +159,16 @@ I welcome new ideas and contributions. If you have ideas or wish to implement fe
 
 # Disclaimer:
 
-This tool has been developed solely for educational, research, and public interest purposes. Every user is advised that they are responsible for:
+This tool has been developed solely for educational, research, and public interest purposes. Users are independently responsible for:
 
-* Reviewing the Terms of Service (ToS) of the target website they intend to scrape. Do note, ToS can change over time and can be implicit or explicit.
-* Checking any robots.txt file on the target website to ensure that scraping activities are permitted and align with the website's directives.
-* Limiting scraping activities so as to not disrupt or overly burden the website's infrastructure.
+1. Complying with the Terms of Service (ToS) of the target website with respect to its stipulations and intentions, note enforceability may vary. 
+2. Adhering to applicable copyright and privacy legislation when scraping, storing, using, or publishing any data from the target website.
+3. Ensuring scraping activities do not disrupt the normal operations of the target website or otherwise breach anti-hacking or computer fraud legislation.
+4. Conducting scraping activities in a way that does not exploit unauthorised access or disregard the target website robots.txt guidelines.
 
-By using this tool, users agree to follow all relevant guidelines, terms, and restrictions of the target website. They also acknowledge that the creators and maintainers of this repository neither endorse nor encourage any actions that could breach laws, regulations, or website terms. We are not liable for misuse of this tool or any consequences arising from its use. 
+By using this tool, users agree to act ethically and within legal boundaries. They acknowledge that the creators and maintainers of this repository neither endorse nor encourage any actions that could breach laws, regulations, or binding website terms. We disclaim liability for any misuse of this tool or any consequences thereof. The field of web scraping intersects with complex and evolving legal domains, including privacy, copyright, computer fraud, internet law, and contract law. Users are advised to remain informed and consult with legal professionals before engaging in web scraping activities.
 
-Website providers with concerns about the scraping functionality contained in this repository are encouraged to open an issue so we can work to resolve the concern.
+Website providers with concerns about the scraping functionality contained in this repository are encouraged to open an issue so we can work to resolve any concerns.
 
 ***
 # Acknowledgements:
