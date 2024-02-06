@@ -182,12 +182,12 @@ Additionally, [McJeffr](https://github.com/McJeffr) provided valuable feedback t
 
 In future I will continue to work on resolving bugs and improving the functionality of the core framework. Additionally, where appropriate, I will work to repair scrapers added to the official repository. Feel free to suggest ideas, here are some current goals for future versions:
 
->Roadmap to `v1.1`
+>Roadmap to `v2.0`
 >
 >* Ensure Linux and Windows compatibility
 >* Move to more robust dependency manager
   
->Roadmap to `v1.2`
+>Roadmap to `v2.1`
 >
 >* Explore making pyscrapify a pip package
 >* Explore approaches to simplify the creation of new scrapers
